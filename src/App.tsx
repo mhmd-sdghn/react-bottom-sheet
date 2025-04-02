@@ -27,7 +27,9 @@ function App() {
         onSnap={onSnap}
         onClose={onClose}
         onSnapPointsUpdate={onSnapPointsUpdate}
-      ></Sheet>
+      >
+        <Sheet.Container>sa</Sheet.Container>
+      </Sheet>
     </>
   );
 }
