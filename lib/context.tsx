@@ -1,14 +1,12 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { SheetProps, SheetPropsContext } from "@lib/types.ts";
+import { SheetPropsContext } from "@lib/types.ts";
 
 type SheetContextProviderProps = {
   children: ReactNode;
   state: SheetPropsContext;
 };
 
-type ContextProps = SheetProps;
-
-const SheetContext = createContext<ContextProps | undefined>(undefined);
+const SheetContext = createContext<SheetPropsContext | undefined>(undefined);
 
 export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
   props,
@@ -20,7 +18,7 @@ export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
   );
 };
 
-export const useSheetContext = (): ContextProps => {
+export const useSheetContext = (): SheetPropsContext => {
   const context = useContext(SheetContext);
   if (context === undefined) {
     throw new Error(
