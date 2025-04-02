@@ -1,5 +1,5 @@
 import { FC, useRef } from "react";
-import { SheetProps, SheetPropsContext } from "@lib/types.ts";
+import { SheetPropsContext, SheetProps } from "@lib/types.ts";
 import { SheetContextProvider } from "@lib/context";
 
 const Sheet: FC<SheetProps> = ({
@@ -9,6 +9,7 @@ const Sheet: FC<SheetProps> = ({
   onClose,
   onSnap,
   onSnapPointsUpdate,
+  children,
 }) => {
   const callbacks = useRef({
     onSnap,
@@ -23,7 +24,9 @@ const Sheet: FC<SheetProps> = ({
     snapPoints,
   };
 
-  return <SheetContextProvider state={context}>wsasd</SheetContextProvider>;
+  return (
+    <SheetContextProvider state={context}>{children}</SheetContextProvider>
+  );
 };
 
 export default Sheet;
