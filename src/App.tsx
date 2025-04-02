@@ -31,7 +31,14 @@ function App() {
         onClose={onClose}
         onSnapPointsUpdate={onSnapPointsUpdate}
       >
-        <Sheet.Container>sa</Sheet.Container>
+        <Sheet.Container>
+          <Sheet.Header>
+            <h1>header</h1>
+          </Sheet.Header>
+          <div>
+            <h2>Content</h2>
+          </div>
+        </Sheet.Container>
       </Sheet>
     </>
   );

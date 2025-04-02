@@ -18,3 +18,8 @@ export interface SheetProps extends SheetCallbacks {
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
   callbacks: RefObject<SheetCallbacks>;
 };
+
+export interface DynamicHeightContentComponentProps {
+  children?: ReactNode;
+  onHeightChange: (height: number) => void;
+}
