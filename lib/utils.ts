@@ -29,3 +29,37 @@ export const findHeaderComponent = (
 
   return child;
 };
+
+function cached(fn: () => boolean) {
+  let res: boolean | null = null;
+  return () => {
+    if (res == null) {
+      res = fn();
+    }
+    return res;
+  };
+}
+
+function testPlatform(re: RegExp) {
+  return !isSSR() ? re.test(navigator.userAgent) : false;
+}
+
+const isMac = cached(function () {
+  return testPlatform(/^Mac/i);
+});
+
+const isIPhone = cached(function () {
+  return testPlatform(/^iPhone/i);
+});
+
+const isIPad = cached(function () {
+  return (
+    testPlatform(/^iPad/i) ||
+    // iPadOS 13 lies and says it's a Mac, but we can distinguish by detecting touch support.
+    (isMac() && navigator.maxTouchPoints > 1)
+  );
+});
+
+export const isIOS = cached(function () {
+  return isIPhone() || isIPad();
+});
