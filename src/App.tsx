@@ -20,6 +20,9 @@ function App() {
 
   return (
     <>
+      <button onClick={() => setIsOpen((value) => !value)}>
+        {isOpen ? "hide" : "show"}
+      </button>
       <Sheet
         isOpen={isOpen}
         snapPoints={snapPoints}
