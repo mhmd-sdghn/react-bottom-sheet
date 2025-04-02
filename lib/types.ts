@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject, ReactNode } from "react";
 
 export type SnapPoint = number;
 
@@ -12,6 +12,7 @@ export interface SheetProps extends SheetCallbacks {
   isOpen: boolean;
   snapPoints: SnapPoint[];
   activeSnapPointIndex: number;
+  children?: ReactNode;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
