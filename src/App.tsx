@@ -2,7 +2,7 @@ import { Sheet, SnapPoints } from "@lib/index";
 import { useState } from "react";
 
 function App() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [snapPoints, setSnapPoints] = useState<SnapPoints>([]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
