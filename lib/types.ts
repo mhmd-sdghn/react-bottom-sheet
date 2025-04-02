@@ -1,15 +1,16 @@
 import { RefObject } from "react";
 
-export type SnapPoint = number[];
+export type SnapPoint = number;
 
 export interface SheetCallbacks {
   onClose: () => void;
-  onSnap: (snapPointIndex: number[], snapPoint: SnapPoint) => void;
+  onSnap: (snapPointIndex: number, snapPoint: SnapPoint) => void;
+  onSnapPointsUpdate: (SnapPoint: SnapPoint[]) => void;
 }
 
 export interface SheetProps extends SheetCallbacks {
   isOpen: boolean;
-  snapPoints: SnapPoint;
+  snapPoints: SnapPoint[];
   activeSnapPointIndex: number;
 }
 
