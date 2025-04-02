@@ -1,4 +1,9 @@
-import { motion, AnimatePresence, MotionConfig } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  MotionConfig,
+  useDragControls,
+} from "motion/react";
 import { Children, FC, ReactNode, useState } from "react";
 import { useSheetContext } from "../context.tsx";
 import { findHeaderComponent } from "../utils.ts";
@@ -9,7 +14,17 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const [y] = useState(-200);
   const HeaderComponent = findHeaderComponent(children);
 
+  const controls = useDragControls();
+
   const onHeightChange = () => {};
+
+  const startDrag = (e) => {
+    console.log("salam 1", e);
+  };
+
+  const dragging = (e) => {
+    console.log("salam 2", e);
+  };
 
   return (
     <MotionConfig transition={{ type: "spring", restSpeed: 0.1, bounce: 0.3 }}>
@@ -17,9 +32,19 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         {state.isOpen && (
           <motion.div
             animate={{ y }}
+            onPointerMoveCapture={dragging}
             exit={{ y: 0 }}
+            drag="y"
+            onPointerDown={startDrag}
+            dragListener={false}
+            onMeasureDragConstraints={(e) => console.log("salam 33 ", e)}
+            dragControls={controls}
+            dragElastic={0}
+            dragMomentum={false}
+            dragPropagation={false}
             style={{
               position: "fixed",
+              touchAction: "none",
               bottom: "-100%",
               height: "100dvh",
               left: 0,
