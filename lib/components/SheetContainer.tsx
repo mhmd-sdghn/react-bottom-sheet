@@ -1,11 +1,5 @@
-import {
-  motion,
-  AnimatePresence,
-  useSpring,
-  type PanInfo,
-  animate,
-} from "motion/react";
-import { Children, FC, ReactNode, useRef, useState } from "react";
+import { motion, useSpring, type PanInfo, animate } from "motion/react";
+import { Children, FC, ReactNode, useEffect, useRef, useState } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
   findHeaderComponent,
@@ -24,29 +18,35 @@ import {
   TweenAnimationConfig,
 } from "@lib/constants.ts";
 
+let headerSnapAddedToSnapPoints = false;
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
   const screenHeight = useScreenHeight();
-  // move this to context
+  // TODO move this to context
   const [dynamicHeightContent, setDynamicHeightContent] = useState(0);
   const HeaderComponent = findHeaderComponent(children);
 
-  const snapValues = useSnapValues(
-    state.snapPoints,
-    !!HeaderComponent,
-    dynamicHeightContent,
-  );
+  const snapValues = useSnapValues(state.snapPoints);
 
-  console.log("salam ", snapValues);
+  const initialY =
+    state.activeSnapPointIndex !== 0
+      ? snapValues[state.activeSnapPointIndex]
+      : dynamicHeightContent
+        ? screenHeight - dynamicHeightContent
+        : screenHeight;
 
-
-  const y = useSpring(snapValues[state.activeSnapPointIndex], {
-    restSpeed: 0.1,
-    bounce: 0.1,
-  });
+  const y = useSpring(initialY, TweenAnimationConfig);
 
   const onHeightChange = (value: number) => {
+    if (!headerSnapAddedToSnapPoints) {
+      state.callbacks.current.onSnapPointsUpdate([value, ...state.snapPoints]);
+    } else
+      state.callbacks.current.onSnapPointsUpdate([
+        value,
+        ...state.snapPoints.slice(1),
+      ]);
+    headerSnapAddedToSnapPoints = true;
     setDynamicHeightContent(value);
   };
 
@@ -113,7 +113,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       snapTo = validateSnapTo({ snapTo, sheetHeight });
 
       // Update the spring value so that the sheet is animated to the snap point
-      animate(y, snapTo, { type: "tween", ease: "easeInOut" });
+      animate(y, snapTo);
 
       if (snapValues && typeof state.callbacks.current.onSnap === "function") {
         let snapIndex = snapToIndex;
@@ -134,56 +134,54 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       const roundedSheetHeight = Math.round(sheetHeight);
       const shouldClose = snapTo + 2 >= roundedSheetHeight; // 2px tolerance
 
-      // if (shouldClose) state.callbacks.current.onClose();
+      if (shouldClose) state.callbacks.current.onClose();
     }
   });
 
+  const refHeader = useRef<HTMLDivElement>(null);
+
   const Sheet = (
-    <AnimatePresence>
-      {state.isOpen && (
-        <motion.div
-          ref={ref}
-          initial={{
-            y: screenHeight || "100vh",
-          }}
-          exit={{ y: screenHeight || "100vh" }}
-          animate={{
-            y: snapValues[state.activeSnapPointIndex],
-            transition: TweenAnimationConfig,
-          }}
-          drag="y"
-          dragConstraints={{ top: 0 }}
-          dragElastic={0}
-          dragMomentum={false}
-          dragPropagation={false}
-          onDrag={onDrag}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          style={{
-            y,
-            position: "absolute",
-            touchAction: "none",
-            top: 0,
-            height: "100dvh",
-            left: 0,
-            right: 0,
-            background: "gray",
-          }}
-        >
-          {HeaderComponent ? (
-            <>
-              <SheetDynamicHeightContent
-                onHeightChange={onHeightChange}
-                {...HeaderComponent.props}
-              />
-              {Children.toArray(children).slice(1)}
-            </>
-          ) : (
-            children
-          )}
-        </motion.div>
+    <motion.div
+      ref={ref}
+      initial={{
+        y: screenHeight || "100vh",
+      }}
+      exit={{ y: screenHeight || "100vh" }}
+      animate={{
+        y: initialY,
+        transition: TweenAnimationConfig,
+      }}
+      drag="y"
+      dragConstraints={{ top: 0 }}
+      dragElastic={0}
+      dragMomentum={false}
+      dragPropagation={false}
+      onDrag={onDrag}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      style={{
+        y,
+        position: "absolute",
+        touchAction: "none",
+        top: 0,
+        height: "100dvh",
+        left: 0,
+        right: 0,
+        background: "gray",
+      }}
+    >
+      {HeaderComponent ? (
+        <>
+          <SheetDynamicHeightContent
+            onHeightChange={onHeightChange}
+            {...HeaderComponent.props}
+          />
+          {Children.toArray(children).slice(1)}
+        </>
+      ) : (
+        children
       )}
-    </AnimatePresence>
+    </motion.div>
   );
 
   if (isSSR()) return Sheet;

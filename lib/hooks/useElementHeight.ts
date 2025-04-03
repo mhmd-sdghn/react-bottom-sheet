@@ -7,13 +7,13 @@ const useElementHeight = (onHeightChange: (height: number) => void) => {
 
   useEffect(() => {
     if (!ref.current) {
+      console.log('salam 1')
       onHeightChange(0);
       return;
     }
 
     const updateHeight = () => {
       const newHeight = ref.current?.offsetHeight || 0;
-
       if (
         newHeight !== lastHeight.current &&
         (Date.now() - lastUpdateTime.current > 10 ||

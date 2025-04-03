@@ -1,10 +1,10 @@
 import { RefObject, ReactNode } from "react";
 
-interface SnapPointConfig {
-  value: number | "headerAsFirstSnapPointValue";
-}
+// interface SnapPointConfig {
+//   value: number | "headerAsFirstSnapPointValue";
+// }
 
-export type SnapPoint = SnapPointConfig | number;
+export type SnapPoint = number;
 
 export interface SheetCallbacks {
   onClose: () => void;

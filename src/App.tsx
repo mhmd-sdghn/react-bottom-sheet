@@ -1,5 +1,5 @@
 import { Sheet, SnapPoints } from "@lib/index";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,7 +7,7 @@ function App() {
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
-    console.log("onSnap switched to ", snapPoints[index]);
+    console.log("onSnap switched to ", snapPoints, snapPoints[index]);
     setActiveSnapPointIndex(index);
   };
 
@@ -17,12 +17,16 @@ function App() {
   };
 
   const onSnapPointsUpdate = (snapPoints: SnapPoints) => {
-    setSnapPoints(snapPoints);
+    console.log("onSnapPointsUpdate ", snapPoints);
+    setSnapPoints([...snapPoints]);
   };
+
+  useEffect(() => {
+    console.log("salsadsad", snapPoints);
+  }, [snapPoints.length]);
 
   return (
     <>
-
       <button onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? "hide" : "show"}
       </button>
@@ -39,12 +43,10 @@ function App() {
             <div
               style={{
                 background: "red",
-                height: activeSnapPointIndex === 1 ? 400 : 200,
-                transition: "all ease 0.2s",
+                height: 222,
+                transition: "all ease 0.4s",
               }}
-            >
-              <h1>header</h1>
-            </div>
+            ></div>
           </Sheet.Header>
           <div>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

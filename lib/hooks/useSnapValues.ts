@@ -3,15 +3,10 @@ import { SnapPoint } from "../types";
 import { useIsomorphicLayoutEffect } from "@lib/utils.ts";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 
-const useSnapValues = (
-  snapPoints: SnapPoint[],
-  addDynamicContentAsSnapValue: boolean,
-  dynamicContentHeight: number,
-) => {
+const useSnapValues = (snapPoints: SnapPoint[]) => {
   const screenHeight = useScreenHeight();
 
-  const snaps = snapPoints.map(point => typeof point !== "number" && point.value === "headerAsFirstSnapPointValue" ? dynamicContentHeight : typeof point == "number" ? point : 0)
-
+  const snaps = snapPoints;
 
   function normalizeSnaps(snapPoints: number[]) {
     const result = [];
@@ -29,12 +24,7 @@ const useSnapValues = (
 
   useIsomorphicLayoutEffect(() => {
     snapValues.current = normalizeSnaps(snaps);
-  }, [
-    snapPoints,
-    screenHeight,
-    dynamicContentHeight,
-    addDynamicContentAsSnapValue,
-  ]);
+  }, [snapPoints, screenHeight]);
 
   return snapValues.current;
 };
