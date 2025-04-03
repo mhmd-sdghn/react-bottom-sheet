@@ -36,7 +36,10 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         ? screenHeight - dynamicHeightContent
         : screenHeight;
 
-  const y = useSpring(initialY, TweenAnimationConfig);
+  const y = useSpring(initialY, {
+    bounce: 0,
+    visualDuration: 0.2,
+  });
 
   const onHeightChange = (value: number) => {
     if (!headerSnapAddedToSnapPoints) {
