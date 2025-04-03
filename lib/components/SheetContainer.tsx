@@ -1,73 +1,192 @@
 import {
   motion,
   AnimatePresence,
-  MotionConfig,
-  useDragControls,
+  useSpring,
+  type PanInfo,
+  animate,
 } from "motion/react";
-import { Children, FC, ReactNode, useState } from "react";
+import { Children, FC, ReactNode, useRef } from "react";
 import { useSheetContext } from "../context.tsx";
-import { findHeaderComponent } from "../utils.ts";
+import {
+  findHeaderComponent,
+  getClosestIndex,
+  isSSR,
+  validateSnapTo,
+} from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
+import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
+import useSnapValues from "@lib/hooks/useSnapValues.ts";
+import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
+import { createPortal } from "react-dom";
+import {
+  DragCloseThreshold,
+  DragVelocityThreshold,
+  TweenAnimationConfig,
+} from "@lib/constants.ts";
 
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
+  const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-  const [y] = useState(-200);
-  const HeaderComponent = findHeaderComponent(children);
 
-  const controls = useDragControls();
+  const screenHeight = useScreenHeight();
+
+  const HeaderComponent = findHeaderComponent(children);
+  const { snapValues } = useSnapValues(state.snapPoints);
+
+  const y = useSpring(snapValues[state.activeSnapPointIndex], {
+    restSpeed: 0.1,
+    bounce: 0.1,
+  });
 
   const onHeightChange = () => {};
 
-  const startDrag = (e) => {
-    console.log("salam 1", e);
-  };
+  const onDragStart = useEffectEvent(() => {
+    // Find focused input inside the sheet and blur it when dragging starts
+    // to prevent a weird ghost caret "bug" on mobile
+    const focusedElement = document.activeElement as HTMLElement | null;
+    if (!focusedElement || !ref.current) return;
 
-  const dragging = (e) => {
-    console.log("salam 2", e);
-  };
+    const isInput =
+      focusedElement.tagName === "INPUT" ||
+      focusedElement.tagName === "TEXTAREA";
 
-  return (
-    <MotionConfig transition={{ type: "spring", restSpeed: 0.1, bounce: 0.3 }}>
-      <AnimatePresence>
-        {state.isOpen && (
-          <motion.div
-            animate={{ y }}
-            onPointerMoveCapture={dragging}
-            exit={{ y: 0 }}
-            drag="y"
-            onPointerDown={startDrag}
-            dragListener={false}
-            onMeasureDragConstraints={(e) => console.log("salam 33 ", e)}
-            dragControls={controls}
-            dragElastic={0}
-            dragMomentum={false}
-            dragPropagation={false}
-            style={{
-              position: "fixed",
-              touchAction: "none",
-              bottom: "-100%",
-              height: "100dvh",
-              left: 0,
-              right: 0,
-              background: "gray",
-            }}
-          >
-            {HeaderComponent ? (
-              <>
-                <SheetDynamicHeightContent
-                  onHeightChange={onHeightChange}
-                  {...HeaderComponent.props}
-                />
-                {Children.toArray(children).slice(1)}
-              </>
-            ) : (
-              children
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </MotionConfig>
+    // Only blur the focused element if it's inside the sheet
+    if (isInput && ref.current.contains(focusedElement)) {
+      focusedElement.blur();
+    }
+  });
+
+  const onDrag = useEffectEvent((_, { delta }: PanInfo) => {
+    // Make sure drag won't get out of the view
+    if (Math.max(y.get() + delta.y, 0) === 0) {
+      y.set(Math.max(y.get() + delta.y, 0));
+    }
+  });
+
+  const onDragEnd = useEffectEvent((_, { velocity, offset }: PanInfo) => {
+    if (y.get() < 0) y.set(0);
+
+    if (velocity.y > DragVelocityThreshold) {
+      // User flicked the sheet down
+      state.callbacks.current.onClose();
+    } else {
+      const sheetHeight = ref.current!.getBoundingClientRect().height;
+      const currentY = y.get();
+
+      let snapTo = 0;
+
+      let snapToIndex;
+
+      if (snapValues) {
+        // const snapToValues = snapValues.map(
+        //   (p) => sheetHeight - Math.min(p, sheetHeight),
+        // );
+
+        // Allow snapping to the top of the sheet if detent is set to `content-height`
+        // if (detent === "content-height" && !snapToValues.includes(0)) {
+        //   snapToValues.unshift(0);
+        // }
+
+        // Get the closest snap point
+
+        snapToIndex = getClosestIndex(
+          snapValues,
+          currentY,
+          offset.y,
+          state.activeSnapPointIndex,
+        );
+
+        snapTo = snapValues[snapToIndex];
+
+        console.log("salam ", snapValues, snapTo);
+      } else if (currentY / sheetHeight > DragCloseThreshold) {
+        // Close if dragged over enough far
+        snapTo = sheetHeight;
+      }
+
+      snapTo = validateSnapTo({ snapTo, sheetHeight });
+
+      // Update the spring value so that the sheet is animated to the snap point
+      animate(y, snapTo, {
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.2,
+      });
+
+      if (snapValues && typeof state.callbacks.current.onSnap === "function") {
+        let snapIndex = snapToIndex;
+
+        if (!snapIndex) {
+          const snapValue = Math.abs(Math.round(snapValues[0] - snapTo));
+          snapIndex = getClosestIndex(
+            snapValues,
+            snapValue,
+            offset.y,
+            state.activeSnapPointIndex,
+          );
+        }
+
+        state.callbacks.current.onSnap(snapIndex, state.snapPoints[snapIndex]);
+      }
+
+      const roundedSheetHeight = Math.round(sheetHeight);
+      const shouldClose = snapTo + 2 >= roundedSheetHeight; // 2px tolerance
+
+      if (shouldClose) state.callbacks.current.onClose();
+    }
+  });
+
+  const Sheet = (
+    <AnimatePresence>
+      {state.isOpen && (
+        <motion.div
+          ref={ref}
+          initial={{
+            y: screenHeight || "100vh",
+          }}
+          exit={{ y: screenHeight || "100vh" }}
+          animate={{
+            y: snapValues[state.activeSnapPointIndex],
+            transition: TweenAnimationConfig,
+          }}
+          drag="y"
+          dragConstraints={{ top: 0 }}
+          dragElastic={0}
+          dragMomentum={false}
+          dragPropagation={false}
+          onDrag={onDrag}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          style={{
+            y,
+            position: "absolute",
+            touchAction: "none",
+            top: 0,
+            height: "100dvh",
+            left: 0,
+            right: 0,
+            background: "gray",
+          }}
+        >
+          {HeaderComponent ? (
+            <>
+              <SheetDynamicHeightContent
+                onHeightChange={onHeightChange}
+                {...HeaderComponent.props}
+              />
+              {Children.toArray(children).slice(1)}
+            </>
+          ) : (
+            children
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  if (isSSR()) return Sheet;
+
+  return createPortal(Sheet, document.body);
 };
 
 export default SheetContainer;
