@@ -97,8 +97,6 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         );
 
         snapTo = snapValues[snapToIndex];
-
-        console.log("salam ", snapValues, snapTo);
       } else if (currentY / sheetHeight > DragCloseThreshold) {
         // Close if dragged over enough far
         snapTo = sheetHeight;
@@ -116,7 +114,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       if (snapValues && typeof state.callbacks.current.onSnap === "function") {
         let snapIndex = snapToIndex;
 
-        if (!snapIndex) {
+        if (typeof snapIndex === "undefined") {
           const snapValue = Math.abs(Math.round(snapValues[0] - snapTo));
           snapIndex = getClosestIndex(
             snapValues,
