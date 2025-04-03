@@ -5,7 +5,7 @@ import {
   type PanInfo,
   animate,
 } from "motion/react";
-import { Children, FC, ReactNode, useRef } from "react";
+import { Children, FC, ReactNode, useRef, useState } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
   findHeaderComponent,
@@ -27,18 +27,25 @@ import {
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-
   const screenHeight = useScreenHeight();
-
+  // move this to context
+  const [dynamicHeightContent, setDynamicHeightContent] = useState(0);
   const HeaderComponent = findHeaderComponent(children);
-  const { snapValues } = useSnapValues(state.snapPoints);
+
+  const { snapValues } = useSnapValues(
+    state.snapPoints,
+    !!HeaderComponent,
+    dynamicHeightContent,
+  );
 
   const y = useSpring(snapValues[state.activeSnapPointIndex], {
     restSpeed: 0.1,
     bounce: 0.1,
   });
 
-  const onHeightChange = () => {};
+  const onHeightChange = (value: number) => {
+    setDynamicHeightContent(value);
+  };
 
   const onDragStart = useEffectEvent(() => {
     // Find focused input inside the sheet and blur it when dragging starts
@@ -78,9 +85,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       let snapToIndex;
 
       if (snapValues) {
-        // const snapToValues = snapValues.map(
-        //   (p) => sheetHeight - Math.min(p, sheetHeight),
-        // );
+        // const snapToValues = [...snapValues];
 
         // Allow snapping to the top of the sheet if detent is set to `content-height`
         // if (detent === "content-height" && !snapToValues.includes(0)) {
@@ -105,11 +110,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       snapTo = validateSnapTo({ snapTo, sheetHeight });
 
       // Update the spring value so that the sheet is animated to the snap point
-      animate(y, snapTo, {
-        type: "tween",
-        ease: "easeOut",
-        duration: 0.2,
-      });
+      animate(y, snapTo, { type: "tween", ease: "easeInOut" });
 
       if (snapValues && typeof state.callbacks.current.onSnap === "function") {
         let snapIndex = snapToIndex;

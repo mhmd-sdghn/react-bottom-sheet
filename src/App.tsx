@@ -3,16 +3,16 @@ import { useState } from "react";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>([400, 650, 1]);
-  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
+  const [snapPoints, setSnapPoints] = useState<SnapPoints>([0.5, 0.8, 1]);
+  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(1);
 
   const onSnap = (index: number) => {
-    console.log("onSnap", index);
+    console.log("onSnap switched to ", snapPoints[index]);
     setActiveSnapPointIndex(index);
   };
 
   const onClose = () => {
-    setActiveSnapPointIndex(0);
+    setActiveSnapPointIndex(1);
     setIsOpen(false);
   };
 
@@ -49,7 +49,7 @@ function App() {
               style={{
                 background: "red",
                 height: activeSnapPointIndex === 1 ? 400 : 200,
-                transition: "all ease 0.5s",
+                transition: "all ease 0.2s",
               }}
             >
               <h1>header</h1>
