@@ -6,7 +6,7 @@ import {
   isValidElement,
   ReactElement,
 } from "react";
-import { HeaderComponentId } from "@lib/constants.ts";
+import { DragOffsetThreshold, HeaderComponentId } from "@lib/constants.ts";
 
 export const isSSR = () => typeof window === "undefined";
 
@@ -63,3 +63,51 @@ const isIPad = cached(function () {
 export const isIOS = cached(function () {
   return isIPhone() || isIPad();
 });
+
+export function getClosestIndex(
+  arr: number[],
+  target: number,
+  offset: number,
+  activeIndex: number,
+) {
+  let closestIndex = 0;
+  let minDiff = Math.abs(target - arr[0]);
+
+  for (let i = 1; i < arr.length; i++) {
+    const currentDiff = Math.abs(arr[i] - target);
+
+    if (currentDiff < minDiff) {
+      closestIndex = i;
+      minDiff = currentDiff;
+    }
+  }
+
+  // Avoid getting back to the same snap point if y movement is more than DragOffsetThreshold
+  if (activeIndex === closestIndex && Math.abs(offset) > DragOffsetThreshold) {
+    if (offset > 0) {
+      return Math.max(closestIndex - 1, 0);
+    }
+
+    return closestIndex + 1;
+  }
+
+  return closestIndex;
+}
+
+export function validateSnapTo({
+  snapTo,
+  sheetHeight,
+}: {
+  snapTo: number;
+  sheetHeight: number;
+}) {
+  if (snapTo < 0) {
+    console.warn(
+      `Snap point is out of bounds. Sheet height is ${sheetHeight} but snap point is ${
+        sheetHeight + Math.abs(snapTo)
+      }.`,
+    );
+  }
+
+  return Math.max(Math.round(snapTo), 0);
+}
