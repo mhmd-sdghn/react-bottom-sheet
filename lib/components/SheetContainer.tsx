@@ -32,11 +32,14 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const [dynamicHeightContent, setDynamicHeightContent] = useState(0);
   const HeaderComponent = findHeaderComponent(children);
 
-  const { snapValues } = useSnapValues(
+  const snapValues = useSnapValues(
     state.snapPoints,
     !!HeaderComponent,
     dynamicHeightContent,
   );
+
+  console.log("salam ", snapValues);
+
 
   const y = useSpring(snapValues[state.activeSnapPointIndex], {
     restSpeed: 0.1,
@@ -75,7 +78,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (velocity.y > DragVelocityThreshold) {
       // User flicked the sheet down
-      state.callbacks.current.onClose();
+      /*  state.callbacks.current.onClose();*/
     } else {
       const sheetHeight = ref.current!.getBoundingClientRect().height;
       const currentY = y.get();
@@ -131,7 +134,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       const roundedSheetHeight = Math.round(sheetHeight);
       const shouldClose = snapTo + 2 >= roundedSheetHeight; // 2px tolerance
 
-      if (shouldClose) state.callbacks.current.onClose();
+      // if (shouldClose) state.callbacks.current.onClose();
     }
   });
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { SnapPoint } from "../types";
 import { useIsomorphicLayoutEffect } from "@lib/utils.ts";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
@@ -9,17 +9,26 @@ const useSnapValues = (
   dynamicContentHeight: number,
 ) => {
   const screenHeight = useScreenHeight();
-  const [snapValues, setSnapValues] = useState<SnapPoint[]>(
-    normalizeSnaps(snapPoints, screenHeight),
-  );
+
+  const snaps = snapPoints.map(point => typeof point !== "number" && point.value === "headerAsFirstSnapPointValue" ? dynamicContentHeight : typeof point == "number" ? point : 0)
+
+
+  function normalizeSnaps(snapPoints: number[]) {
+    const result = [];
+    for (let i = 0; i < snapPoints.length; i++) {
+      if (snapPoints[i] >= 0 && snapPoints[i] <= 1) {
+        result.push(Math.max(screenHeight - snapPoints[i] * screenHeight, 0));
+      } else {
+        result.push(Math.max(screenHeight - snapPoints[i], 0));
+      }
+    }
+    return result;
+  }
+
+  const snapValues = useRef<number[]>(normalizeSnaps(snaps));
 
   useIsomorphicLayoutEffect(() => {
-    const values = normalizeSnaps(snapPoints, screenHeight);
-
-    if (addDynamicContentAsSnapValue)
-      values.unshift(screenHeight - dynamicContentHeight);
-
-    setSnapValues(values);
+    snapValues.current = normalizeSnaps(snaps);
   }, [
     snapPoints,
     screenHeight,
@@ -27,43 +36,7 @@ const useSnapValues = (
     addDynamicContentAsSnapValue,
   ]);
 
-  return { snapValues, setSnapValues };
+  return snapValues.current;
 };
-
-export function normalizeSnaps(
-  snapPoints: SnapPoint[],
-  screenHeight: number,
-): SnapPoint[];
-export function normalizeSnaps(
-  snapPoints: SnapPoint,
-  screenHeight: number,
-): SnapPoint;
-export function normalizeSnaps(
-  snapPoints: SnapPoint | SnapPoint[],
-  screenHeight = 0,
-) {
-  const result = [];
-  let _snapPoints;
-  let isSingleSnap = false;
-
-  if (snapPoints && !Array.isArray(snapPoints)) {
-    isSingleSnap = true;
-    _snapPoints = [snapPoints];
-  } else if (!Array.isArray(snapPoints) || !snapPoints.length)
-    return snapPoints;
-  else {
-    _snapPoints = snapPoints;
-  }
-
-  for (let i = 0; i < _snapPoints.length; i++) {
-    if (_snapPoints[i] >= 0 && _snapPoints[i] <= 1) {
-      result.push(Math.max(screenHeight - _snapPoints[i] * screenHeight, 0));
-    } else {
-      result.push(Math.max(screenHeight - _snapPoints[i], 0));
-    }
-  }
-
-  return isSingleSnap ? result[0] : result;
-}
 
 export default useSnapValues;

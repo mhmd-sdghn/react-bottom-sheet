@@ -3,8 +3,8 @@ import { useState } from "react";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>([0.5, 0.8, 1]);
-  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(1);
+  const [snapPoints, setSnapPoints] = useState<SnapPoints>([0.5, 1]);
+  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
     console.log("onSnap switched to ", snapPoints[index]);
@@ -22,16 +22,7 @@ function App() {
 
   return (
     <>
-      <div
-        style={{
-          height: 10,
-          width: "100%",
-          background: "yellow",
-          position: "fixed",
-          bottom: 650,
-          zIndex: 9999,
-        }}
-      ></div>
+
       <button onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? "hide" : "show"}
       </button>
@@ -56,7 +47,38 @@ function App() {
             </div>
           </Sheet.Header>
           <div>
-            <h2>Content</h2>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas
+            purus viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
+            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
+            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
+            Mattis pellentesque id nibh tortor id aliquet lectus proin. Sapien
+            faucibus et molestie ac feugiat sed lectus vestibulum. Ullamcorper
+            velit sed ullamcorper morbi tincidunt ornare massa eget. Dictum
+            varius duis at consectetur lorem. Nisi vitae suscipit tellus mauris
+            a diam maecenas sed enim. Velit ut tortor pretium viverra
+            suspendisse potenti nullam. Et molestie ac feugiat sed lectus. Non
+            nisi est sit amet facilisis magna. Dignissim diam quis enim lobortis
+            scelerisque fermentum. Odio ut enim blandit volutpat maecenas
+            volutpat. Ornare lectus sit amet est placerat in egestas erat. Nisi
+            vitae suscipit tellus mauris a diam maecenas sed. Placerat duis
+            ultricies lacus sed turpis tincidunt id aliquet. Lorem ipsum dolor
+            sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua. Egestas purus viverra
+            accumsan in nisl nisi. Arcu cursus vitae congue mauris rhoncus
+            aenean vel elit scelerisque. In egestas erat imperdiet sed euismod
+            nisi porta lorem mollis. Morbi tristique senectus et netus. Mattis
+            pellentesque id nibh tortor id aliquet lectus proin. Sapien faucibus
+            et molestie ac feugiat sed lectus vestibulum. Ullamcorper velit sed
+            ullamcorper morbi tincidunt ornare massa eget. Dictum varius duis at
+            consectetur lorem. Nisi vitae suscipit tellus mauris a diam maecenas
+            sed enim. Velit ut tortor pretium viverra suspendisse potenti
+            nullam. Et molestie ac feugiat sed lectus. Non nisi est sit amet
+            facilisis magna. Dignissim diam quis enim lobortis scelerisque
+            fermentum. Odio ut enim blandit volutpat maecenas volutpat. Ornare
+            lectus sit amet est placerat in egestas erat. Nisi vitae suscipit
+            tellus mauris a diam maecenas sed. Placerat duis ultricies lacus sed
+            turpis tincidunt id aliquet.
           </div>
         </Sheet.Container>
       </Sheet>
