@@ -1,11 +1,11 @@
 import { SnapPoint as SnapPointType } from "./types.ts";
 import { default as SheetBase } from "./components/Sheet";
 import SheetContainer from "./components/SheetContainer.tsx";
-import SheetHeader from "./components/SheetHeader.tsx";
+import SheetWithDynamicHeight from "./components/SheetWithDynamicHeight.tsx";
 
 export const Sheet = Object.assign(SheetBase, {
   Container: SheetContainer,
-  Header: SheetHeader,
+  DynamicHeight: SheetWithDynamicHeight,
 });
 
 // export types
