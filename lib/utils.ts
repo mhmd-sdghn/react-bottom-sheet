@@ -7,7 +7,6 @@ import {
   ReactElement,
 } from "react";
 import { DragOffsetThreshold, HeaderComponentId } from "@lib/constants.ts";
-import { SnapPoint } from "@lib/types.ts";
 
 export const isSSR = () => typeof window === "undefined";
 
@@ -114,9 +113,11 @@ export function validateSnapTo({
 }
 
 export const getSnapValues = (
-  snapPoints: SnapPoint[],
+  snapPoints: number[] | null | undefined,
   screenHeight: number,
 ) => {
+  if (!Array.isArray(snapPoints)) return [];
+
   const result = [];
   for (let i = 0; i < snapPoints.length; i++) {
     if (snapPoints[i] >= 0 && snapPoints[i] <= 1) {
@@ -126,5 +127,8 @@ export const getSnapValues = (
     }
   }
 
-  return result;
+  return result.sort((a, b) => {
+    if (a === 0) return 1;
+    return b - a;
+  });
 };

@@ -9,13 +9,13 @@ const Sheet: FC<SheetProps> = ({
   snapPoints = [],
   onClose,
   onSnap,
-  onSnapPointsUpdate,
+  setSnapPoints,
   children,
 }) => {
   const callbacks = useRef({
     onSnap,
     onClose,
-    onSnapPointsUpdate,
+    setSnapPoints,
   });
 
   const context: SheetPropsContext = {
