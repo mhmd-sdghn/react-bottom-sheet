@@ -8,7 +8,7 @@ export type SnapPoint = number;
 
 export interface SheetCallbacks {
   onClose: () => void;
-  onSnap: (snapPointIndex: number, snapPoint: SnapPoint) => void;
+  onSnap: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
   onSnapPointsUpdate: (SnapPoint: SnapPoint[]) => void;
 }
 
