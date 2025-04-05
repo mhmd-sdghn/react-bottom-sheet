@@ -7,7 +7,6 @@ const useElementHeight = (onHeightChange: (height: number) => void) => {
 
   useEffect(() => {
     if (!ref.current) {
-      console.log('salam 1')
       onHeightChange(0);
       return;
     }

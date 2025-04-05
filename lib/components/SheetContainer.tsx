@@ -1,5 +1,5 @@
 import { motion, useSpring, type PanInfo, animate } from "motion/react";
-import { Children, FC, ReactNode, useEffect, useRef, useState } from "react";
+import { Children, FC, ReactNode, useRef, useState } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
   findHeaderComponent,
@@ -9,7 +9,7 @@ import {
 } from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
 import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
-import useSnapValues from "@lib/hooks/useSnapValues.ts";
+import { getSnapValues } from "../utils.ts";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 import { createPortal } from "react-dom";
 import {
@@ -27,7 +27,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const [dynamicHeightContent, setDynamicHeightContent] = useState(0);
   const HeaderComponent = findHeaderComponent(children);
 
-  const snapValues = useSnapValues(state.snapPoints);
+  const snapValues = getSnapValues(state.snapPoints, screenHeight);
 
   const initialY =
     state.activeSnapPointIndex !== 0
@@ -37,7 +37,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         : screenHeight;
 
   const y = useSpring(initialY, {
-    bounce: 0,
+    bounce: 0.2,
     visualDuration: 0.2,
   });
 
@@ -81,7 +81,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (velocity.y > DragVelocityThreshold) {
       // User flicked the sheet down
-      /*  state.callbacks.current.onClose();*/
+      state.callbacks.current.onClose();
     } else {
       const sheetHeight = ref.current!.getBoundingClientRect().height;
       const currentY = y.get();
@@ -135,13 +135,13 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       }
 
       const roundedSheetHeight = Math.round(sheetHeight);
+
+      console.log(snapTo + 2, roundedSheetHeight);
       const shouldClose = snapTo + 2 >= roundedSheetHeight; // 2px tolerance
 
       if (shouldClose) state.callbacks.current.onClose();
     }
   });
-
-  const refHeader = useRef<HTMLDivElement>(null);
 
   const Sheet = (
     <motion.div

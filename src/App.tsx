@@ -7,7 +7,7 @@ function App() {
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
-    console.log("onSnap switched to ", snapPoints, snapPoints[index]);
+    console.log("onSnap switched to ", index);
     setActiveSnapPointIndex(index);
   };
 
@@ -20,10 +20,6 @@ function App() {
     console.log("onSnapPointsUpdate ", snapPoints);
     setSnapPoints([...snapPoints]);
   };
-
-  useEffect(() => {
-    console.log("salsadsad", snapPoints);
-  }, [snapPoints.length]);
 
   return (
     <>
@@ -39,15 +35,6 @@ function App() {
         onSnapPointsUpdate={onSnapPointsUpdate}
       >
         <Sheet.Container>
-          <Sheet.Header>
-            <div
-              style={{
-                background: "red",
-                height: 222,
-                transition: "all ease 0.4s",
-              }}
-            ></div>
-          </Sheet.Header>
           <div>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas
