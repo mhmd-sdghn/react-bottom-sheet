@@ -1,24 +1,35 @@
-import React, { createContext, useContext, ReactNode } from "react";
-import { SheetPropsContext } from "@lib/types.ts";
+import React, { createContext, useContext, useState } from "react";
+import type {
+  SheetContextProviderValues,
+  SheetContextProviderProps,
+} from "@lib/types.ts";
 
-type SheetContextProviderProps = {
-  children: ReactNode;
-  state: SheetPropsContext;
-};
-
-const SheetContext = createContext<SheetPropsContext | undefined>(undefined);
+const SheetContext = createContext<SheetContextProviderValues | undefined>(
+  undefined,
+);
 
 export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
   props,
 ) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [dynamicHeightContent, setDynamicHeightContent] = useState(1);
+
   return (
-    <SheetContext.Provider value={props.state}>
+    <SheetContext.Provider
+      value={{
+        dynamicHeightContent,
+        setDynamicHeightContent,
+        isAnimating,
+        setIsAnimating,
+        ...props.state,
+      }}
+    >
       {props.children}
     </SheetContext.Provider>
   );
 };
 
-export const useSheetContext = (): SheetPropsContext => {
+export const useSheetContext = (): SheetContextProviderValues => {
   const context = useContext(SheetContext);
   if (context === undefined) {
     throw new Error(

@@ -1,5 +1,4 @@
 import { FC, useRef } from "react";
-import { AnimatePresence } from "motion/react"
 import { SheetPropsContext, SheetProps } from "@lib/types.ts";
 import { SheetContextProvider } from "@lib/context";
 
@@ -25,12 +24,9 @@ const Sheet: FC<SheetProps> = ({
     snapPoints,
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen  ? <SheetContextProvider state={context}>{children}</SheetContextProvider> : null}
-    </AnimatePresence>
-    
-  );
+  return isOpen ? (
+    <SheetContextProvider state={context}>{children}</SheetContextProvider>
+  ) : null;
 };
 
 export default Sheet;
