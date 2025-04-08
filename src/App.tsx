@@ -3,7 +3,7 @@ import { Sheet, SnapPoints } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>([2, 0.5, 1]);
+  const [snapPoints, setSnapPoints] = useState<SnapPoints>(["dynamic", 0.9, 1]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
@@ -29,9 +29,9 @@ function App() {
       </button>
       <button
         style={{ position: "fixed", left: 100, zIndex: 999 }}
-        onClick={() => setActiveSnapPointIndex(1)}
+        onClick={() => setActiveSnapPointIndex(0)}
       >
-        index 1
+        index 0
       </button>
       <Sheet
         isOpen={isOpen}
@@ -47,54 +47,21 @@ function App() {
               style={{
                 width: "100%",
                 background: "blue",
-                height: 100,
-                transition: "all 0.5s ease",
+                height: activeSnapPointIndex === 0 ? 100 : 300,
+                transition: "all 0.4s ease",
               }}
             ></div>
-          </Sheet.DynamicHeight>
 
-          <div>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas
-            purus viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Sapien
-            faucibus et molestie ac feugiat sed lectus vestibulum. Ullamcorper
-            velit sed ullamcorper morbi tincidunt ornare massa eget. Dictum
-            varius duis at consectetur lorem. Nisi vitae suscipit tellus mauris
-            a diam maecenas sed enim. Velit ut tortor pretium viverra Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Sapien
-            faucibus et molestie ac feugiat sed lectus vestibulum. Ullamcorper
-            velit sed ullamcorper morbi tincidunt ornare massa eget. Dictum
-            varius duis at consectetur lorem. Nisi vitae suscipit tellus mauris
-            a diam maecenas sed enim. Velit ut tortor pretium viverra Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Sapien
-            faucibus et molestie ac feugiat sed lectus vestibulum. Ullamcorper
-            velit sed ullamcorper morbi tincidunt ornare massa eget. Dictum
-            varius duis at consectetur lorem. Nisi vitae suscipit tellus mauris
-            a diam maecenas sed enim. Velit ut tortor pretium viverra Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Sapien
-            faucibus et molestie ac feugiat sed lectus vestibulum. Ullamcorper
-            velit sed ullamcorper morbi tincidunt ornare massa eget. Dictum
-            varius duis at consectetur lorem. Nisi vitae suscipit tellus mauris
-            a diam maecenas sed enim. Velit ut tortor pretium viverra
-          </div>
+            <div>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              Egestas purus viverra accumsan in nisl nisi. Arcu cursus vitae
+              congue mauris rhoncus aenean vel elit scelerisque. In egestas erat
+              imperdiet sed euismod nisi porta lorem mollis. Morbi tristique
+              senectus et netus. Mattis pellentesque id nibh tortor id aliquet
+              lectus proin.
+            </div>
+          </Sheet.DynamicHeight>
         </Sheet.Container>
       </Sheet>
     </>

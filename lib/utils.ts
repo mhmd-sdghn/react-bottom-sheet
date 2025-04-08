@@ -7,6 +7,7 @@ import {
   ReactElement,
 } from "react";
 import { DragOffsetThreshold, HeaderComponentId } from "@lib/constants.ts";
+import { SnapPoint } from "@lib/types.ts";
 
 export const isSSR = () => typeof window === "undefined";
 
@@ -113,22 +114,62 @@ export function validateSnapTo({
 }
 
 export const getSnapValues = (
-  snapPoints: number[] | null | undefined,
+  snapPoints: SnapPoint[],
   screenHeight: number,
 ) => {
   if (!Array.isArray(snapPoints)) return [];
 
   const result = [];
   for (let i = 0; i < snapPoints.length; i++) {
-    if (snapPoints[i] >= 0 && snapPoints[i] <= 1) {
-      result.push(Math.max(screenHeight - snapPoints[i] * screenHeight, 0));
-    } else {
-      result.push(Math.max(screenHeight - snapPoints[i], 0));
+    const snap = typeof snapPoints[i] === "string" ? 0 : snapPoints[i];
+
+    if (typeof snap === "number") {
+      if (snap >= 0 && snap <= 1) {
+        result.push(Math.max(screenHeight - snap * screenHeight, 0));
+      } else {
+        result.push(Math.max(screenHeight - snap, 0));
+      }
     }
   }
+
+  console.log("aaa ", result);
 
   return result.sort((a, b) => {
     if (a === 0) return 1;
     return b - a;
   });
+};
+
+export const isContentMode = (
+  snapValues: SnapPoint[],
+  screenHeight: number,
+  dynamicHeightContent: number,
+) => {
+  // if there is no snap value or if the only snap value if dynamic content height value
+  // then, content mode is on and sheet height is fu.
+  return (
+    !snapValues.length ||
+    (snapValues.length === 1 &&
+      snapValues[0] === screenHeight - dynamicHeightContent)
+  );
+};
+
+export const getActiveValue = (
+  snapValues: number[],
+  screenHeight: number,
+  contentMode: boolean,
+  activeSnapPointIndex: number,
+  dynamicHeightContent: number,
+) => {
+  if (!contentMode) {
+    if (
+      activeSnapPointIndex === 0 &&
+      dynamicHeightContent &&
+      dynamicHeightContent
+    )
+      return screenHeight - dynamicHeightContent;
+    return snapValues[activeSnapPointIndex];
+  }
+
+  return snapValues[0] || 0;
 };

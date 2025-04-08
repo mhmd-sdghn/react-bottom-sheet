@@ -4,7 +4,7 @@ import { RefObject, ReactNode } from "react";
 //   value: number | "headerAsFirstSnapPointValue";
 // }
 
-export type SnapPoint = number;
+export type SnapPoint = number | "dynamic";
 
 export interface SheetCallbacks {
   onClose: () => void;

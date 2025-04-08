@@ -3,7 +3,9 @@ import { Children, FC, ReactNode, useMemo, useRef } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
   findHeaderComponent,
+  getActiveValue,
   getClosestIndex,
+  isContentMode,
   isSSR,
   validateSnapTo,
 } from "../utils.ts";
@@ -36,19 +38,21 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
    * contentMode value is used
    * to help with this.
    */
-  const contentMode =
-    !snapValues.length ||
-    (snapValues.length === 1 &&
-      snapValues[0] === screenHeight - state.dynamicHeightContent);
-  const fitShitToContent = !!(contentMode && state.dynamicHeightContent);
+  const contentMode = isContentMode(
+    snapValues,
+    screenHeight,
+    state.dynamicHeightContent,
+  );
 
-  const activeSnapValue = !contentMode
-    ? state.activeSnapPointIndex === 0 &&
-      HeaderComponent &&
-      state.dynamicHeightContent
-      ? screenHeight - state.dynamicHeightContent
-      : snapValues[state.activeSnapPointIndex]
-    : snapValues[0] || 0;
+  const activeSnapValue = getActiveValue(
+    snapValues,
+    screenHeight,
+    contentMode,
+    state.activeSnapPointIndex,
+    state.dynamicHeightContent,
+  );
+
+  console.log(snapValues);
 
   const { y, animate } = useAnim();
 
@@ -73,9 +77,8 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (currentY <= 0) {
       y.set(0);
-    } else if (fitShitToContent && offsetY <= 0) {
-      // Prevent moving the sheet to up when fitShitToContent is true since when fitShitToContent=true
-      // whether the sheet is closed or opened, and it's height fits the content
+    } else if (contentMode && offsetY <= 0) {
+      // Prevent moving the sheet to up when contentMode is true so sheet height fits the content
       y.set(screenHeight - state.dynamicHeightContent);
     } else {
       //let snapTo = 0;
@@ -170,7 +173,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         position: "absolute",
         touchAction: "none",
         top: 0,
-        height: "100dvh",
+        height: contentMode ? "fit-content" : "100dvh",
         left: 0,
         right: 0,
         background: "gray",
