@@ -3,7 +3,7 @@ import { Sheet, SnapPoints } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>([0.5, 1]);
+  const [snapPoints, setSnapPoints] = useState<SnapPoints>([2, 0.5, 1]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {

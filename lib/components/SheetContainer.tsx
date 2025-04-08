@@ -1,17 +1,5 @@
-import {
-  animated,
-  useIsomorphicLayoutEffect,
-  useSpring,
-} from "@react-spring/web";
-import {
-  Children,
-  FC,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
+import { Children, FC, ReactNode, useMemo, useRef } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
   findHeaderComponent,
@@ -27,8 +15,6 @@ import { createPortal } from "react-dom";
 import { DragCloseThreshold, DragOffsetThreshold } from "@lib/constants.ts";
 import { useDrag } from "@use-gesture/react";
 import useAnim from "@lib/hooks/useAnim.ts";
-
-const headerSnapAddedToSnapPoints = false;
 
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -64,28 +50,11 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       : snapValues[state.activeSnapPointIndex]
     : snapValues[0] || 0;
 
-  // const onHeightChange = (value: number) => {
-  //   if (!Array.isArray(state.snapPoints)) {
-  //     state.callbacks.current.setSnapPoints([value]);
-  //   } else {
-  //     if (!headerSnapAddedToSnapPoints) {
-  //       state.callbacks.current.setSnapPoints([value, ...state.snapPoints]);
-  //     } else {
-  //       state.callbacks.current.setSnapPoints([
-  //         value,
-  //         ...state.snapPoints.slice(1),
-  //       ]);
-  //     }
-  //   }
-  //   headerSnapAddedToSnapPoints = true;
-  //   setDynamicHeightContent(value);
-  // };
-
   const { y, animate } = useAnim();
 
   const onDragStart = useEffectEvent(() => {
     // Find focused input inside the sheet and blur it when dragging starts
-    // to prevent a weird ghost caret "bug" on mobile
+    // to prevent a unique ghost caret "bug" on mobile
     const focusedElement = document.activeElement as HTMLElement | null;
     if (!focusedElement || !ref.current) return;
 
@@ -109,7 +78,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       // whether the sheet is closed or opened, and it's height fits the content
       y.set(screenHeight - state.dynamicHeightContent);
     } else {
-      let snapTo = 0;
+      //let snapTo = 0;
 
       let snapToIndex;
 
@@ -123,13 +92,11 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
           state.activeSnapPointIndex,
         );
 
-        snapTo = snapValues[snapToIndex];
+        //snapTo = snapValues[snapToIndex];
       } else if (currentY / sheetHeight > DragCloseThreshold) {
         // Close if dragged over enough far
-        snapTo = screenHeight - sheetHeight;
+        //snapTo = screenHeight - sheetHeight;
       }
-
-      snapTo = validateSnapTo({ snapTo, sheetHeight });
 
       // Update the spring value so that the sheet is animated to the snap point
       //api.start({ y: snapTo });
@@ -151,6 +118,8 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         typeof state.callbacks.current.onSnap === "function" &&
         typeof snapToIndex === "number"
       ) {
+        if (state.activeSnapPointIndex === snapToIndex)
+          animate(activeSnapValue);
         state.callbacks.current.onSnap(
           snapToIndex,
           state.snapPoints[snapToIndex],
@@ -182,7 +151,12 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   useIsomorphicLayoutEffect(() => {
-    animate(activeSnapValue);
+    animate(
+      validateSnapTo({
+        snapTo: activeSnapValue,
+        sheetHeight: ref.current?.offsetHeight || 0,
+      }),
+    );
   }, [activeSnapValue]);
 
   // to fix type issue of react-spring
