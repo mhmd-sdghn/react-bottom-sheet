@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 const useElementHeight = (onHeightChange: (height: number) => void) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const lastHeight = useRef(0);
-  const lastUpdateTime = useRef(0);
 
   useEffect(() => {
     if (!ref.current) {
@@ -13,14 +12,9 @@ const useElementHeight = (onHeightChange: (height: number) => void) => {
 
     const updateHeight = () => {
       const newHeight = ref.current?.offsetHeight || 0;
-      if (
-        newHeight !== lastHeight.current &&
-        (Date.now() - lastUpdateTime.current > 10 ||
-          lastUpdateTime.current === 0)
-      ) {
+      if (newHeight !== lastHeight.current) {
         onHeightChange(newHeight);
         lastHeight.current = newHeight;
-        lastUpdateTime.current = Date.now();
       }
     };
 
