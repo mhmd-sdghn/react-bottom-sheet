@@ -1,6 +1,7 @@
 import { useSpring } from "@react-spring/web";
 import { useSheetContext } from "@lib/context.tsx";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
+import { UseAnimAnimateFn } from "@lib/types.ts";
 
 const useAnim = () => {
   const state = useSheetContext();
@@ -8,7 +9,7 @@ const useAnim = () => {
 
   const [{ y }, api] = useSpring(() => ({ y: screenHeight }));
 
-  const animate = (_y: number, cb?: () => void) => {
+  const animate: UseAnimAnimateFn = (_y, cb) => {
     const targetY = y.get() + _y > 0 ? _y : 0;
 
     state.setIsAnimating(true);

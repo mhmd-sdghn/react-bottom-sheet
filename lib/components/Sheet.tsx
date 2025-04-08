@@ -24,6 +24,7 @@ const Sheet: FC<SheetProps> = ({
     snapPoints,
   };
 
+  // TODO handle close animation (isOpen sets to false from outside)
   return isOpen ? (
     <SheetContextProvider state={context}>{children}</SheetContextProvider>
   ) : null;

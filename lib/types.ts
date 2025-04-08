@@ -34,3 +34,16 @@ export type SheetContextProviderValues = SheetPropsContext & {
 export interface DynamicHeightContentComponentProps {
   children?: ReactNode;
 }
+
+export type UseAnimAnimateFn = (_y: number, cb?: () => void) => void;
+
+export interface DragEndEventHandlerFn {
+  offsetY: number;
+  contentMode: boolean;
+  screenHeight: number;
+  dynamicHeightContent: number;
+  snapValues: number[];
+  activeSnapPointIndex: number;
+  snapPoints: SnapPoint[];
+  activeSnapValue: number;
+}
