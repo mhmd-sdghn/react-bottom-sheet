@@ -1,9 +1,5 @@
 import { RefObject, ReactNode } from "react";
 
-// interface SnapPointConfig {
-//   value: number | "headerAsFirstSnapPointValue";
-// }
-
 export type SnapPoint = number | "dynamic";
 
 export interface SheetCallbacks {
@@ -19,7 +15,7 @@ export interface SheetProps extends SheetCallbacks {
   children?: ReactNode;
 }
 
-type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
+export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
   callbacks: RefObject<SheetCallbacks>;
 };
 

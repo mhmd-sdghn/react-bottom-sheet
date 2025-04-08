@@ -48,7 +48,7 @@ function App() {
                 width: "100%",
                 background: "blue",
                 height: activeSnapPointIndex === 0 ? 100 : 300,
-                transition: "all 0.4s ease",
+                transition: "all 0.5s ease",
               }}
             ></div>
 
