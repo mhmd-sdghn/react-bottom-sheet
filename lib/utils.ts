@@ -132,8 +132,6 @@ export const getSnapValues = (
     }
   }
 
-  console.log("aaa ", result);
-
   return result.sort((a, b) => {
     if (a === 0) return 1;
     return b - a;

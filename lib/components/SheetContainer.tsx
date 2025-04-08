@@ -52,8 +52,6 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
     state.dynamicHeightContent,
   );
 
-  console.log(snapValues);
-
   const { y, animate } = useAnim();
 
   const onDragStart = useEffectEvent(() => {
