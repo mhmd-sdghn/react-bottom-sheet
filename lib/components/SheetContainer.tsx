@@ -13,7 +13,7 @@ import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
 import { getSnapValues } from "../utils.ts";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 import { createPortal } from "react-dom";
-import { useDrag } from "@use-gesture/react";
+import { useGesture } from "@use-gesture/react";
 import useAnim from "@lib/hooks/useAnim.ts";
 import {
   onDragEndEventHandler,
@@ -76,19 +76,19 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
     ),
   );
 
-  const dragProps = useDrag(
-    (state) => {
-      if (state.first) {
+  const gestureProps = useGesture(
+    {
+      onDragStart: () => {
         elementY.current = y.get();
         onDragStart();
-      } else if (state.last) {
-        onDragEnd(state.movement[1]);
-      } else {
-        animate(elementY.current + state.movement[1]);
-      }
+      },
+      onDragEnd: ({ movement }) => onDragEnd(movement[1]),
+      onDrag: ({ movement }) => animate(elementY.current + movement[1]),
     },
     {
-      pointer: { touch: true },
+      drag: {
+        pointer: { touch: true },
+      },
     },
   );
 
@@ -106,10 +106,10 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const Sheet = (
     <AnimatedDiv
       ref={ref}
-      {...dragProps()}
+      {...gestureProps()}
       style={{
         y,
-        touchAction: "none",
+        touchAction: state.activeSnapPointIndex === 1 ? "pan-y" : "none",
         height: contentMode ? "fit-content" : "100dvh",
         position: "absolute",
         top: 0,

@@ -3,7 +3,7 @@ import { Sheet, SnapPoints } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>(["dynamic", 0.9, 1]);
+  const [snapPoints, setSnapPoints] = useState<SnapPoints>(["dynamic", 1]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
@@ -22,6 +22,8 @@ function App() {
     setSnapPoints(snapPoints);
   };
 
+  // TODO add openWithoutAnimation prop
+  // TODO add snap configuration (value, scroll, drag(lock drag in a certain direction)
   return (
     <>
       <button onClick={() => setIsOpen(!isOpen)}>
