@@ -124,7 +124,6 @@ export const onDragEndEventHandler = (
   const activeIndexAfterDrag = snapToIndex ?? activeSnapPointIndex;
   const snapPointAfterDrag = state.snapPoints[activeIndexAfterDrag];
 
-  console.log("activeIndexAfterDrag ", snapToIndex, snapPointAfterDrag);
   if (ref.current) {
     if (typeof snapPointAfterDrag === "object" && snapPointAfterDrag.scroll) {
       scrollLock.current.deactivate();
