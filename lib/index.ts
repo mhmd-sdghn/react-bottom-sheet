@@ -12,3 +12,4 @@ export const Sheet = Object.assign(SheetBase, {
 export type SnapPoints = SnapPointType[];
 export type SnapPoint = SnapPointType;
 export type { SheetProps } from "./types.ts";
+export { SnapPointValues } from "./constants.ts";
