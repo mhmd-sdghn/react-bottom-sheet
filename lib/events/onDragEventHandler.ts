@@ -1,43 +1,73 @@
 import { RefObject } from "react";
-import { OnDragEventHandlerState, UseAnimAnimateFn } from "@lib/types.ts";
+import {
+  OnDragEventHandlerState,
+  ScrollLock,
+  SnapPointConfigObj,
+  UseAnimAnimateFn,
+} from "@lib/types.ts";
+import { SnapPoint } from "@lib/index.ts";
 
 const onDragEventHandler = (
-  ref: RefObject<HTMLDivElement | null>,
+  containerRef: RefObject<HTMLDivElement | null>,
   animate: UseAnimAnimateFn,
-  {
-    movementY,
-    activeSnapPoint,
-    scrollY,
-    scrollLock,
-    elementY,
-  }: OnDragEventHandlerState,
+  state: OnDragEventHandlerState,
 ) => {
-  if (!ref.current) return;
+  const { movementY, activeSnapPoint, scrollY, scrollLock, elementY } = state;
 
-  if (typeof activeSnapPoint === "object") {
-    if (
-      movementY > 0 &&
-      (typeof activeSnapPoint.drag === "object"
-        ? activeSnapPoint.drag.down === false
-        : activeSnapPoint.drag === false)
-    )
-      return;
-    if (
-      movementY > 0 &&
-      (typeof activeSnapPoint.drag === "object"
-        ? activeSnapPoint.drag.down === false
-        : activeSnapPoint.drag === false)
-    )
-      return;
+  if (!containerRef.current) return;
 
-    if (activeSnapPoint.scroll && scrollY.current === 0 && movementY > 0) {
-      scrollLock.current.activate();
-      animate(elementY.current + movementY);
-    } else if (!activeSnapPoint.scroll) {
-      animate(elementY.current + movementY);
-    }
-  } else {
-    animate(elementY.current + movementY);
+  const targetPosition = elementY.current + movementY;
+
+  if (isSnapPointConfigObj(activeSnapPoint)) {
+    if (shouldBlockDragDown(activeSnapPoint, movementY)) return;
+
+    handleScrollDrag(
+      activeSnapPoint,
+      movementY,
+      scrollY,
+      scrollLock,
+      targetPosition,
+      animate,
+    );
+    return;
+  }
+
+  animate(targetPosition);
+};
+
+// Helper functions
+const isSnapPointConfigObj = (point: SnapPoint): point is SnapPointConfigObj =>
+  typeof point === "object" && "value" in point;
+
+const shouldBlockDragDown = (
+  snapConfig: SnapPointConfigObj,
+  movementY: number,
+): boolean => {
+  if (movementY <= 0) return false;
+
+  const dragConfig = snapConfig.drag;
+  return typeof dragConfig === "object"
+    ? dragConfig.down === false
+    : dragConfig === false;
+};
+
+const handleScrollDrag = (
+  snapConfig: SnapPointConfigObj,
+  movementY: number,
+  scrollY: RefObject<number>,
+  scrollLock: ScrollLock,
+  targetPosition: number,
+  animate: UseAnimAnimateFn,
+) => {
+  const isScrollingEnabled = snapConfig.scroll;
+  const isDraggingDown = movementY > 0;
+  const isAtTop = scrollY.current === 0;
+
+  if (isScrollingEnabled && isDraggingDown && isAtTop) {
+    scrollLock.current.activate();
+    animate(targetPosition);
+  } else if (!isScrollingEnabled) {
+    animate(targetPosition);
   }
 };
 
