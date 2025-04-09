@@ -1,72 +1,14 @@
-import { getClosestIndex } from "@lib/utils.ts";
-import { DragOffsetThreshold } from "@lib/constants.ts";
+import { RefObject } from "react";
+import { SpringValue } from "@react-spring/web";
 import {
   DragEndEventHandlerFn,
-  OnDragEventHandlerState,
   SheetCallbacks,
   UseAnimAnimateFn,
-} from "@lib/types";
-import { SpringValue } from "@react-spring/web";
-import { RefObject } from "react";
+} from "@lib/types.ts";
+import { getClosestIndex } from "@lib/utils.ts";
+import { DragOffsetThreshold } from "@lib/constants.ts";
 
-export const onDragStartEventHandler = (
-  ref: RefObject<HTMLDivElement | null>,
-) => {
-  // Find focused input inside the sheet and blur it when dragging starts
-  // to prevent a unique ghost caret "bug" on mobile
-  const focusedElement = document.activeElement as HTMLElement | null;
-  if (!focusedElement || !ref.current) return;
-
-  const isInput =
-    focusedElement.tagName === "INPUT" || focusedElement.tagName === "TEXTAREA";
-
-  // Only blur the focused element if it's inside the sheet
-  if (isInput && ref.current.contains(focusedElement)) {
-    focusedElement.blur();
-  }
-};
-
-export const onDragEventHandler = (
-  ref: RefObject<HTMLDivElement | null>,
-  animate: UseAnimAnimateFn,
-  {
-    movementY,
-    activeSnapPoint,
-    scrollY,
-    scrollLock,
-    elementY,
-  }: OnDragEventHandlerState,
-) => {
-  if (!ref.current) return;
-
-  if (typeof activeSnapPoint === "object") {
-    // if (
-    //   movementY > 0 &&
-    //   (typeof activeSnapPoint.drag === "object"
-    //     ? activeSnapPoint.drag.down === false
-    //     : activeSnapPoint.drag === false)
-    // )
-    //   return;
-    // if (
-    //   movementY > 0 &&
-    //   (typeof activeSnapPoint.drag === "object"
-    //     ? activeSnapPoint.drag.down === false
-    //     : activeSnapPoint.drag === false)
-    // )
-    //   return;
-
-    if (activeSnapPoint.scroll && scrollY.current === 0 && movementY > 0) {
-      scrollLock.current.activate();
-      animate(elementY.current + movementY);
-    } else if (!activeSnapPoint.scroll) {
-      animate(elementY.current + movementY);
-    }
-  } else {
-    animate(elementY.current + movementY);
-  }
-};
-
-export const onDragEndEventHandler = (
+const onDragEndEventHandler = (
   ref: RefObject<HTMLDivElement | null>,
   y: SpringValue<number>,
   animate: UseAnimAnimateFn,
@@ -128,11 +70,22 @@ export const onDragEndEventHandler = (
       if (state.activeSnapPointIndex === snapToIndex) animate(activeSnapValue);
       callbacks.current.onSnap(snapToIndex, state.snapPoints[snapToIndex]);
     } else if (shouldClose) {
-      // call onClose after close animation os done to unmount the element
-      animate(screenHeight, () => {
-        callbacks.current.onSnap(-1, null);
-        callbacks.current.onClose();
-      });
+      const nextSnapPoint = snapPoints[snapToIndex];
+      if (
+        snapToIndex === 0 &&
+        typeof nextSnapPoint === "object" &&
+        (typeof nextSnapPoint.drag === "object"
+          ? nextSnapPoint.drag.down === false
+          : nextSnapPoint.drag === false)
+      ) {
+        return;
+      } else {
+        // call onClose after close animation os done to unmount the element
+        animate(screenHeight, () => {
+          callbacks.current.onSnap(-1, null);
+          callbacks.current.onClose();
+        });
+      }
     }
   }
 
@@ -150,3 +103,5 @@ export const onDragEndEventHandler = (
     }
   }
 };
+
+export default onDragEndEventHandler;

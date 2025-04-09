@@ -15,11 +15,9 @@ import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 import { createPortal } from "react-dom";
 import { useGesture } from "@use-gesture/react";
 import useAnim from "@lib/hooks/useAnim.ts";
-import {
-  onDragEndEventHandler,
-  onDragStartEventHandler,
-  onDragEventHandler,
-} from "@lib/event-handlers.ts";
+import onDragEventHandler from "@lib/events/onDragEventHandler.ts";
+import onDragStartEventHandler from "@lib/events/onDragStartEventHandler.ts";
+import onDragEndEventHandler from "@lib/events/onDragEndEventHandler.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
 
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
