@@ -11,7 +11,6 @@ const SheetContext = createContext<SheetContextProviderValues | undefined>(
 export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
   props,
 ) => {
-  const [isAnimating, setIsAnimating] = useState(false);
   const [dynamicHeightContent, setDynamicHeightContent] = useState(1);
 
   return (
@@ -19,8 +18,6 @@ export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
       value={{
         dynamicHeightContent,
         setDynamicHeightContent,
-        isAnimating,
-        setIsAnimating,
         ...props.state,
       }}
     >

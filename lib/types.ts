@@ -43,8 +43,6 @@ export type SheetContextProviderProps = {
 export type SheetContextProviderValues = SheetPropsContext & {
   dynamicHeightContent: number;
   setDynamicHeightContent: (value: number) => void;
-  isAnimating: boolean;
-  setIsAnimating: (value: boolean) => void;
 };
 
 export interface DynamicHeightContentComponentProps {
