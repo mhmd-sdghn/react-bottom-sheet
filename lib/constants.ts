@@ -1,4 +1,5 @@
-export const HeaderComponentId = "REACT_BOTTOM_SHEET_HEADER_COMPONENT";
+export const DynamicHeightComponentId =
+  "_REACT_BOTTOM_SHEET_DYNAMIC_HEIGHT_COMPONENT_";
 
 export const DragOffsetThreshold = 80;
 

@@ -2,7 +2,7 @@ import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
 import { Children, FC, ReactNode, useMemo, useRef } from "react";
 import { useSheetContext } from "../context.tsx";
 import {
-  findHeaderComponent,
+  findDynamicHeightComponent,
   getActiveValue,
   isContentMode,
   isSSR,
@@ -29,9 +29,10 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const scrollY = useRef(0);
   const elementY = useRef(0);
   const scrollLock = useScrollLock(ref);
-  const HeaderComponent = findHeaderComponent(children);
+  const DynamicHeightComponent = findDynamicHeightComponent(children);
   const snapValues = useMemo(
-    () => getSnapValues(state.snapPoints, screenHeight),
+    () =>
+      getSnapValues(state.snapPoints, screenHeight, !!DynamicHeightComponent),
     [state.snapPoints, screenHeight],
   );
   /**
@@ -132,9 +133,9 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         background: "gray",
       }}
     >
-      {HeaderComponent ? (
+      {DynamicHeightComponent ? (
         <>
-          <SheetDynamicHeightContent {...HeaderComponent.props} />
+          <SheetDynamicHeightContent {...DynamicHeightComponent.props} />
           {Children.toArray(children).slice(1)}
         </>
       ) : (
