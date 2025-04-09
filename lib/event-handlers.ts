@@ -2,6 +2,7 @@ import { getClosestIndex } from "@lib/utils.ts";
 import { DragOffsetThreshold } from "@lib/constants.ts";
 import {
   DragEndEventHandlerFn,
+  OnDragEventHandlerState,
   SheetCallbacks,
   UseAnimAnimateFn,
 } from "@lib/types";
@@ -25,7 +26,33 @@ export const onDragStartEventHandler = (
   }
 };
 
+export const onDragEventHandler = (
+  ref: RefObject<HTMLDivElement | null>,
+  animate: UseAnimAnimateFn,
+  {
+    movementY,
+    activeSnapPoint,
+    scrollY,
+    scrollLock,
+    elementY,
+  }: OnDragEventHandlerState,
+) => {
+  if (!ref.current) return;
+
+  if (typeof activeSnapPoint === "object") {
+    if (activeSnapPoint.scroll && scrollY.current === 0 && movementY > 0) {
+      scrollLock.current.activate();
+      animate(elementY.current + movementY);
+    } else if (!activeSnapPoint.scroll) {
+      animate(elementY.current + movementY);
+    }
+  } else {
+    animate(elementY.current + movementY);
+  }
+};
+
 export const onDragEndEventHandler = (
+  ref: RefObject<HTMLDivElement | null>,
   y: SpringValue<number>,
   animate: UseAnimAnimateFn,
   state: DragEndEventHandlerFn,
@@ -40,9 +67,12 @@ export const onDragEndEventHandler = (
     activeSnapPointIndex,
     snapPoints,
     activeSnapValue,
+    scrollLock,
+    scrollY,
   } = state;
 
   const currentY = y.get();
+  let snapToIndex: number | null = null;
 
   if (currentY <= 0) {
     y.set(0);
@@ -51,9 +81,9 @@ export const onDragEndEventHandler = (
     // so sheet height fits the content.
     y.set(screenHeight - dynamicHeightContent);
   } else {
-    let snapToIndex;
-
-    if (!contentMode) {
+    if (contentMode) {
+      snapToIndex = 0;
+    } else {
       snapToIndex = getClosestIndex(
         snapValues,
         currentY,
@@ -61,6 +91,8 @@ export const onDragEndEventHandler = (
         activeSnapPointIndex,
       );
     }
+
+    snapToIndex = Math.max(Math.min(snapToIndex, snapValues.length - 1), 0);
 
     const shouldClose = !contentMode
       ? snapToIndex === 0 &&
@@ -76,8 +108,7 @@ export const onDragEndEventHandler = (
       Array.isArray(snapPoints) &&
       (snapPoints.length > 1 ||
         snapPoints[0] !== screenHeight - state.dynamicHeightContent) && // make sure the only snap point is not the one we added as the dynamic content snap
-      typeof callbacks.current.onSnap === "function" &&
-      typeof snapToIndex === "number"
+      typeof callbacks.current.onSnap === "function"
     ) {
       if (state.activeSnapPointIndex === snapToIndex) animate(activeSnapValue);
       callbacks.current.onSnap(snapToIndex, state.snapPoints[snapToIndex]);
@@ -87,6 +118,21 @@ export const onDragEndEventHandler = (
         callbacks.current.onSnap(-1, null);
         callbacks.current.onClose();
       });
+    }
+  }
+
+  const activeIndexAfterDrag = snapToIndex ?? activeSnapPointIndex;
+  const snapPointAfterDrag = state.snapPoints[activeIndexAfterDrag];
+
+  console.log("activeIndexAfterDrag ", snapToIndex, snapPointAfterDrag);
+  if (ref.current) {
+    if (typeof snapPointAfterDrag === "object" && snapPointAfterDrag.scroll) {
+      scrollLock.current.deactivate();
+    } else if (scrollY.current !== 0) {
+      ref.current.scroll({ top: 0, behavior: "smooth" });
+      scrollLock.current.activate();
+    } else {
+      scrollLock.current.activate();
     }
   }
 };
