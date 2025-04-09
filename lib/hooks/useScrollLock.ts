@@ -1,13 +1,8 @@
-import { useDebugValue, useEffect, useRef, RefObject } from "react";
+import { useRef, RefObject } from "react";
 import { disableScroll, enableScroll } from "@fluejs/noscroll";
+import { useIsomorphicLayoutEffect } from "@react-spring/web";
 
-function useScrollLock({
-  targetRef,
-  enabled,
-}: {
-  targetRef: RefObject<HTMLDivElement | null>;
-  enabled: boolean;
-}) {
+function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError("Tried to activate scroll lock too early");
@@ -15,32 +10,24 @@ function useScrollLock({
     deactivate: () => {},
   });
 
-  useDebugValue(enabled ? "Enabled" : "Disabled");
-
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const target = targetRef.current;
     if (!target) return;
 
-    if (!enabled) {
-      ref.current.deactivate();
-      ref.current = { activate: () => {}, deactivate: () => {} };
-      return;
-    }
-
-    let active = false;
+    let active: boolean | null = null;
 
     disableScroll(document.body);
 
     ref.current = {
       activate: () => {
-        if (active) return;
+        if (active === true) return;
         target.style.overflowY = "none";
         target.style.touchAction = "none";
         disableScroll(target);
         active = true;
       },
       deactivate: () => {
-        if (!active) return;
+        if (active === false) return;
         target.style.overflowY = "auto";
         target.style.touchAction = "pan-y";
         enableScroll(target);
@@ -49,7 +36,7 @@ function useScrollLock({
     };
 
     return () => enableScroll(document.body);
-  }, [enabled, targetRef]);
+  }, [targetRef]);
 
   return ref;
 }

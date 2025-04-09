@@ -4,8 +4,12 @@ import { Sheet, SnapPoints, SnapPointValues } from "@lib/index";
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [snapPoints, setSnapPoints] = useState<SnapPoints>([
-    SnapPointValues.DynamicContentValue,
-    0.5,
+    {
+      value: SnapPointValues.DynamicContentValue,
+      drag: {
+        down: false,
+      },
+    },
     {
       value: 1,
       scroll: true,

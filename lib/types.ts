@@ -8,8 +8,8 @@ export interface SnapPointConfigObj {
   drag?:
     | boolean
     | {
-        up: boolean;
-        down: boolean;
+        up?: boolean;
+        down?: boolean;
       };
 }
 

@@ -28,7 +28,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const screenHeight = useScreenHeight();
   const scrollY = useRef(0);
   const elementY = useRef(0);
-  const scrollLock = useScrollLock({ targetRef: ref, enabled: true });
+  const scrollLock = useScrollLock(ref);
   const HeaderComponent = findHeaderComponent(children);
   const snapValues = useMemo(
     () => getSnapValues(state.snapPoints, screenHeight),
@@ -124,8 +124,6 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       {...gestureProps()}
       style={{
         y,
-        touchAction: "none",
-        overflowY: "auto",
         height: contentMode ? "fit-content" : "100dvh",
         position: "absolute",
         top: 0,

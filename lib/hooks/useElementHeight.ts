@@ -1,10 +1,9 @@
-import { useDebugValue, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const useElementHeight = (onHeightChange: (height: number) => void) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const lastHeight = useRef(0);
 
-  useDebugValue(lastHeight);
   useEffect(() => {
     if (!ref.current) {
       onHeightChange(0);

@@ -89,7 +89,9 @@ export const getSnapValues = (
       )
         return 0;
       if (typeof snap === "object" && snap !== null && "value" in snap)
-        return (snap as { value: number }).value;
+        if (typeof snap.value === "number")
+          return (snap as { value: number }).value;
+        else return 0;
       if (typeof snap === "number") return snap;
       return null;
     })();

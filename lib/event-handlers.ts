@@ -40,6 +40,21 @@ export const onDragEventHandler = (
   if (!ref.current) return;
 
   if (typeof activeSnapPoint === "object") {
+    // if (
+    //   movementY > 0 &&
+    //   (typeof activeSnapPoint.drag === "object"
+    //     ? activeSnapPoint.drag.down === false
+    //     : activeSnapPoint.drag === false)
+    // )
+    //   return;
+    // if (
+    //   movementY > 0 &&
+    //   (typeof activeSnapPoint.drag === "object"
+    //     ? activeSnapPoint.drag.down === false
+    //     : activeSnapPoint.drag === false)
+    // )
+    //   return;
+
     if (activeSnapPoint.scroll && scrollY.current === 0 && movementY > 0) {
       scrollLock.current.activate();
       animate(elementY.current + movementY);
