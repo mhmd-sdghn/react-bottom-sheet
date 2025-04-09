@@ -18,20 +18,22 @@ import useAnim from "@lib/hooks/useAnim.ts";
 import {
   onDragEndEventHandler,
   onDragStartEventHandler,
+  onDragEventHandler,
 } from "@lib/event-handlers.ts";
+import useScrollLock from "@lib/hooks/useScrollLock.ts";
 
 const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
   const screenHeight = useScreenHeight();
+  const scrollY = useRef(0);
   const elementY = useRef(0);
-
+  const scrollLock = useScrollLock({ targetRef: ref, enabled: true });
   const HeaderComponent = findHeaderComponent(children);
   const snapValues = useMemo(
     () => getSnapValues(state.snapPoints, screenHeight),
     [state.snapPoints, screenHeight],
   );
-
   /**
    * When there is no snap point, we assume there is one snap point while the bottom sheet is open.
    * This can either be a full-screen height bottom sheet or
@@ -45,7 +47,6 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
     screenHeight,
     state.dynamicHeightContent,
   );
-
   const activeSnapValue = getActiveValue(
     snapValues,
     screenHeight,
@@ -53,13 +54,22 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
     state.activeSnapPointIndex,
     state.dynamicHeightContent,
   );
-
   const { y, animate } = useAnim();
+  const activeSnapPoint = state.snapPoints[state.activeSnapPointIndex];
 
   const onDragStart = useEffectEvent(() => onDragStartEventHandler(ref));
-
+  const onDrag = useEffectEvent((movementY: number) =>
+    onDragEventHandler(ref, animate, {
+      scrollY,
+      scrollLock,
+      activeSnapPoint,
+      elementY,
+      movementY,
+    }),
+  );
   const onDragEnd = useEffectEvent((offsetY: number) =>
     onDragEndEventHandler(
+      ref,
       y,
       animate,
       {
@@ -71,6 +81,8 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         contentMode,
         offsetY,
         snapValues,
+        scrollY,
+        scrollLock,
       },
       state.callbacks,
     ),
@@ -82,8 +94,11 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
         elementY.current = y.get();
         onDragStart();
       },
+      onDrag: ({ movement, last }) => (!last ? onDrag(movement[1]) : null),
       onDragEnd: ({ movement }) => onDragEnd(movement[1]),
-      onDrag: ({ movement }) => animate(elementY.current + movement[1]),
+      onScroll: ({ values }) => {
+        scrollY.current = values[1];
+      },
     },
     {
       drag: {
@@ -109,14 +124,14 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       {...gestureProps()}
       style={{
         y,
-        touchAction: state.activeSnapPointIndex === 1 ? "pan-y" : "none",
+        touchAction: "none",
+        overflowY: "auto",
         height: contentMode ? "fit-content" : "100dvh",
         position: "absolute",
         top: 0,
         left: 0,
         right: 0,
         background: "gray",
-        overflowY: "auto",
       }}
     >
       {HeaderComponent ? (
