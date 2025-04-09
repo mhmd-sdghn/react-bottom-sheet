@@ -1,7 +1,7 @@
 import { FC } from "react";
 import useElementHeight from "@lib/hooks/useElementHeight.ts";
 import { DynamicHeightContentComponentProps } from "@lib/types.ts";
-import { useSheetContext } from "@lib/context.tsx";
+import useSheetContext from "@lib/context/useSheetContext.tsx";
 
 const SheetDynamicHeightContent: FC<DynamicHeightContentComponentProps> = ({
   children,

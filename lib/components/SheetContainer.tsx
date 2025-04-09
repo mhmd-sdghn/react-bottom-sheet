@@ -1,6 +1,6 @@
 import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
 import { Children, FC, ReactNode, useMemo, useRef } from "react";
-import { useSheetContext } from "../context.tsx";
+import useSheetContext from "@lib/context/useSheetContext.tsx";
 import {
   findDynamicHeightComponent,
   getActiveValue,

@@ -1,6 +1,6 @@
 import { FC, useRef } from "react";
 import { SheetPropsContext, SheetProps } from "@lib/types.ts";
-import { SheetContextProvider } from "@lib/context";
+import { SheetContextProvider } from "@lib/context/context.tsx";
 
 const Sheet: FC<SheetProps> = ({
   isOpen = false,

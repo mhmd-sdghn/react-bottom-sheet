@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useState } from "react";
 import type {
   SheetContextProviderValues,
   SheetContextProviderProps,
@@ -27,16 +27,6 @@ export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
       {props.children}
     </SheetContext.Provider>
   );
-};
-
-export const useSheetContext = (): SheetContextProviderValues => {
-  const context = useContext(SheetContext);
-  if (context === undefined) {
-    throw new Error(
-      "useSheetContext must be used within a SheetContextProvider",
-    );
-  }
-  return context;
 };
 
 export default SheetContext;

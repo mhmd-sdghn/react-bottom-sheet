@@ -1,5 +1,5 @@
 import { useSpring } from "@react-spring/web";
-import { useSheetContext } from "@lib/context.tsx";
+import useSheetContext from "@lib/context/useSheetContext.tsx";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 import { UseAnimAnimateFn } from "@lib/types.ts";
 
