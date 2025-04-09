@@ -1,5 +1,5 @@
-import { useIsomorphicLayoutEffect } from "@lib/utils.ts";
 import { useCallback, useRef } from "react";
+import { useIsomorphicLayoutEffect } from "@react-spring/web";
 
 // eslint-disable-next-line
 function useEffectEvent<T extends (...args: any[]) => any>(handler: T) {
