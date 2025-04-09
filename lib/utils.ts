@@ -1,14 +1,14 @@
 import { ReactNode, Children, isValidElement, ReactElement } from "react";
 import {
   DragOffsetThreshold,
-  HeaderComponentId,
+  DynamicHeightComponentId,
   SnapPointValues,
 } from "@lib/constants.ts";
 import { SnapPoint } from "@lib/types.ts";
 
 export const isSSR = () => typeof window === "undefined";
 
-export const findHeaderComponent = (
+export const findDynamicHeightComponent = (
   children: ReactNode,
 ): ReactElement<{ children: ReactNode }> | null => {
   const _children = Children.toArray(children);
@@ -21,7 +21,7 @@ export const findHeaderComponent = (
 
   if (!isValidElement(child)) return null;
 
-  if (child.type.displayName !== HeaderComponentId) return null;
+  if (child.type.displayName !== DynamicHeightComponentId) return null;
 
   return child;
 };
@@ -74,43 +74,6 @@ export function validateSnapTo({
   return Math.max(Math.round(snapTo), 0);
 }
 
-export const getSnapValues = (
-  snapPoints: SnapPoint[],
-  screenHeight: number,
-) => {
-  if (!Array.isArray(snapPoints)) return [];
-
-  const result = [];
-  for (const snap of snapPoints) {
-    const snapValue = (() => {
-      if (
-        typeof snap === "string" &&
-        snap === SnapPointValues.DynamicContentValue
-      )
-        return 0;
-      if (typeof snap === "object" && snap !== null && "value" in snap)
-        if (typeof snap.value === "number")
-          return (snap as { value: number }).value;
-        else return 0;
-      if (typeof snap === "number") return snap;
-      return null;
-    })();
-
-    if (snapValue === null) {
-      console.warn("Invalid snap value, got ", snap);
-    } else {
-      const heightOffset =
-        snapValue <= 1 ? snapValue * screenHeight : snapValue;
-      result.push(Math.max(screenHeight - heightOffset, 0));
-    }
-  }
-
-  return result.sort((a, b) => {
-    if (a === 0) return 1;
-    return b - a;
-  });
-};
-
 export const isContentMode = (
   snapValues: SnapPoint[],
   screenHeight: number,
@@ -143,4 +106,97 @@ export const getActiveValue = (
   }
 
   return snapValues[0] || 0;
+};
+
+const isDynamicSnapValue = (snap: SnapPoint) => {
+  if (
+    typeof snap === "object" &&
+    "value" in snap &&
+    snap.value === SnapPointValues.DynamicContentValue
+  )
+    return true;
+  return snap === SnapPointValues.DynamicContentValue;
+};
+
+/** Converts any valid snap point format to pixels */
+const convertSnapToPixels = (snap: SnapPoint, screenHeight: number): number => {
+  if (typeof snap === "object" && "value" in snap) {
+    return calculatePixelValue(snap.value, screenHeight);
+  }
+  return calculatePixelValue(snap, screenHeight);
+};
+
+const calculatePixelValue = (
+  value: string | number,
+  screenHeight: number,
+): number => {
+  const numericValue = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(numericValue)) {
+    console.warn("Invalid snap value:", value);
+    return 0;
+  }
+
+  // Handle percentage values (<=1) vs absolute pixels
+  const heightOffset =
+    numericValue <= 1 ? numericValue * screenHeight : numericValue;
+
+  return Math.max(screenHeight - heightOffset, 0);
+};
+
+const validateDynamicSnapPosition = (
+  hasDynamicComponent: boolean,
+  dynamicIndex: number,
+) => {
+  if (!hasDynamicComponent) return;
+
+  if (dynamicIndex === -1) {
+    console.warn(
+      "[DynamicHeight] Required configuration missing: \n" +
+        "    When using DynamicHeight component, you must include 'SnapPointValues.DynamicContentValue' \n" +
+        "    as your FIRST snap point for proper layout calculations.",
+    );
+  } else if (dynamicIndex > 0) {
+    console.warn(`[DynamicHeight] Invalid configuration:
+    'SnapPointValues.DynamicContentValue' must be the FIRST snap point in the array 
+    to ensure correct dynamic content height calculations. Found at position ${dynamicIndex}.`);
+  }
+};
+
+const sortSnapValues = (values: number[]): number[] =>
+  [...values].sort((a, b) => {
+    // Keep 0 (bottom position) at the end
+    if (a === 0) return 1;
+    if (b === 0) return -1;
+    return b - a;
+  });
+
+export const getSnapValues = (
+  snapPoints: SnapPoint[],
+  screenHeight: number,
+  hasDynamicHeightComponent: boolean,
+): number[] => {
+  if (!Array.isArray(snapPoints)) return [];
+
+  let dynamicSnapIndex = -1;
+  const processedValues: number[] = [];
+
+  snapPoints.forEach((snap, index) => {
+    // Handle dynamic content marker
+    if (isDynamicSnapValue(snap)) {
+      dynamicSnapIndex = index;
+      processedValues.push(screenHeight);
+      return;
+    }
+
+    // Convert different formats to pixel value
+    const pixelValue = convertSnapToPixels(snap, screenHeight);
+    processedValues.push(pixelValue);
+  });
+
+  // Validate dynamic snap point requirements
+  validateDynamicSnapPosition(hasDynamicHeightComponent, dynamicSnapIndex);
+
+  // Sort zero (full-height) last
+  return sortSnapValues(processedValues);
 };
