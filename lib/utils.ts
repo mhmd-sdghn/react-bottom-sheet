@@ -1,17 +1,12 @@
+import { ReactNode, Children, isValidElement, ReactElement } from "react";
 import {
-  useEffect,
-  useLayoutEffect,
-  ReactNode,
-  Children,
-  isValidElement,
-  ReactElement,
-} from "react";
-import { DragOffsetThreshold, HeaderComponentId } from "@lib/constants.ts";
+  DragOffsetThreshold,
+  HeaderComponentId,
+  SnapPointValues,
+} from "@lib/constants.ts";
 import { SnapPoint } from "@lib/types.ts";
 
 export const isSSR = () => typeof window === "undefined";
-
-export const useIsomorphicLayoutEffect = isSSR() ? useLayoutEffect : useEffect;
 
 export const findHeaderComponent = (
   children: ReactNode,
@@ -30,40 +25,6 @@ export const findHeaderComponent = (
 
   return child;
 };
-
-function cached(fn: () => boolean) {
-  let res: boolean | null = null;
-  return () => {
-    if (res == null) {
-      res = fn();
-    }
-    return res;
-  };
-}
-
-function testPlatform(re: RegExp) {
-  return !isSSR() ? re.test(navigator.userAgent) : false;
-}
-
-const isMac = cached(function () {
-  return testPlatform(/^Mac/i);
-});
-
-const isIPhone = cached(function () {
-  return testPlatform(/^iPhone/i);
-});
-
-const isIPad = cached(function () {
-  return (
-    testPlatform(/^iPad/i) ||
-    // iPadOS 13 lies and says it's a Mac, but we can distinguish by detecting touch support.
-    (isMac() && navigator.maxTouchPoints > 1)
-  );
-});
-
-export const isIOS = cached(function () {
-  return isIPhone() || isIPad();
-});
 
 export function getClosestIndex(
   arr: number[],
@@ -120,15 +81,25 @@ export const getSnapValues = (
   if (!Array.isArray(snapPoints)) return [];
 
   const result = [];
-  for (let i = 0; i < snapPoints.length; i++) {
-    const snap = typeof snapPoints[i] === "string" ? 0 : snapPoints[i];
+  for (const snap of snapPoints) {
+    const snapValue = (() => {
+      if (
+        typeof snap === "string" &&
+        snap === SnapPointValues.DynamicContentValue
+      )
+        return 0;
+      if (typeof snap === "object" && snap !== null && "value" in snap)
+        return (snap as { value: number }).value;
+      if (typeof snap === "number") return snap;
+      return null;
+    })();
 
-    if (typeof snap === "number") {
-      if (snap >= 0 && snap <= 1) {
-        result.push(Math.max(screenHeight - snap * screenHeight, 0));
-      } else {
-        result.push(Math.max(screenHeight - snap, 0));
-      }
+    if (snapValue === null) {
+      console.warn("Invalid snap value, got ", snap);
+    } else {
+      const heightOffset =
+        snapValue <= 1 ? snapValue * screenHeight : snapValue;
+      result.push(Math.max(screenHeight - heightOffset, 0));
     }
   }
 
@@ -143,8 +114,8 @@ export const isContentMode = (
   screenHeight: number,
   dynamicHeightContent: number,
 ) => {
-  // if there is no snap value or if the only snap value if dynamic content height value
-  // then, content mode is on and sheet height is fu.
+  // if there is no snap value or if the only snap value is
+  // dynamic content height value then, content mode is on.
   return (
     !snapValues.length ||
     (snapValues.length === 1 &&
