@@ -53,6 +53,8 @@ export interface DynamicHeightContentComponentProps {
 
 export type UseAnimAnimateFn = (_y: number, cb?: () => void) => void;
 
+export type ScrollLock = ReturnType<typeof useScrollLock>;
+
 export interface DragEndEventHandlerFn {
   offsetY: number;
   contentMode: boolean;
@@ -62,7 +64,7 @@ export interface DragEndEventHandlerFn {
   activeSnapPointIndex: number;
   snapPoints: SnapPoint[];
   activeSnapValue: number;
-  scrollLock: ReturnType<typeof useScrollLock>;
+  scrollLock: ScrollLock;
   scrollY: RefObject<number>;
 }
 
@@ -72,4 +74,17 @@ export interface OnDragEventHandlerState {
   elementY: RefObject<number>;
   scrollY: RefObject<number>;
   scrollLock: ReturnType<typeof useScrollLock>;
+}
+
+export interface SnapBehaviorParams {
+  targetSnapIndex: number;
+  contentMode: boolean;
+  snapPoints: SnapPoint[];
+  screenHeight: number;
+  currentSnapIndex: number;
+  offsetY: number;
+  callbacks: RefObject<SheetCallbacks>;
+  animate: UseAnimAnimateFn;
+  activeSnapValue: number;
+  state: DragEndEventHandlerFn;
 }
