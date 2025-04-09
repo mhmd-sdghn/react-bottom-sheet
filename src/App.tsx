@@ -33,7 +33,6 @@ function App() {
     setSnapPoints(snapPoints);
   };
 
-  // TODO handle snap point drag config to lock drag in specific direction
   return (
     <>
       <button onClick={() => setIsOpen(!isOpen)}>
