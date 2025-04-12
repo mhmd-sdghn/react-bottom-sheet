@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build && tsc -p tsconfig.lib.declarations.json",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -13,8 +13,7 @@
     "@react-spring/web": "^9.7.5",
     "@use-gesture/react": "^10.3.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-modal-sheet": "^4.0.1"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
