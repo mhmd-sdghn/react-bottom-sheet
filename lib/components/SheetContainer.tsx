@@ -31,7 +31,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   const snapValues = useMemo(
     () =>
       getSnapValues(state.snapPoints, screenHeight, !!DynamicHeightComponent),
-    [state.snapPoints, screenHeight],
+    [state.snapPoints, screenHeight, DynamicHeightComponent],
   );
   /**
    * When there is no snap point, we assume there is one snap point while the bottom sheet is open.
