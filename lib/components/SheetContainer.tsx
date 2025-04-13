@@ -142,12 +142,13 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       {...gestureProps()}
       style={{
         y,
-        height: contentMode ? "fit-content" : "100dvh",
+        height: contentMode ? "fit-content" : "100%",
         position: state.wrapperElement ? "absolute" : "fixed",
         top: 0,
         left: 0,
         right: 0,
         background: "gray",
+        overscrollBehavior: "none",
       }}
     >
       {DynamicHeightComponent ? (

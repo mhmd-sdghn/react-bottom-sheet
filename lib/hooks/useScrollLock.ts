@@ -1,5 +1,4 @@
 import { useRef, RefObject } from "react";
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { useIsomorphicLayoutEffect } from "@react-spring/web";
 
 function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
@@ -16,26 +15,31 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
 
     let active: boolean | null = null;
 
-    disableBodyScroll(document.body);
+    document.documentElement.style.overflowY = "none";
+    document.body.style.overflowY = "none";
+    document.body.style.overscrollBehavior = "none";
 
     ref.current = {
       activate: () => {
         if (active === true) return;
         target.style.overflowY = "hidden";
         target.style.touchAction = "none";
-        disableBodyScroll(target);
         active = true;
       },
       deactivate: () => {
         if (active === false) return;
         target.style.overflowY = "auto";
         target.style.touchAction = "pan-y";
-        enableBodyScroll(target);
+        //enableBodyScroll(target);
         active = false;
       },
     };
 
-    return () => enableBodyScroll(document.body);
+    return () => {
+      document.documentElement.style.overflowY = "auto";
+      document.body.style.overflowY = "auto";
+      document.body.style.overscrollBehavior = "auto";
+    };
   }, [targetRef]);
 
   return ref;

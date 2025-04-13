@@ -27,7 +27,6 @@ export default defineConfig({
         "@react-spring/web",
         "@use-gesture/react",
         "react/jsx-runtime",
-        "body-scroll-lock",
       ],
       output: [
         {
@@ -52,7 +51,6 @@ export default defineConfig({
             "react/jsx-runtime": "jsxRuntime",
             "@react-spring/web": "ReactSpringWeb",
             "@use-gesture/react": "ReactGesture",
-            "body-scroll-lock": "ScrollLock",
           },
         },
         {
@@ -66,7 +64,6 @@ export default defineConfig({
             "react/jsx-runtime": "jsxRuntime",
             "@react-spring/web": "ReactSpringWeb",
             "@use-gesture/react": "ReactGesture",
-            "body-scroll-lock": "ScrollLock",
           },
         },
       ],
