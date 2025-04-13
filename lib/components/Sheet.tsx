@@ -5,6 +5,7 @@ import { SheetContextProvider } from "@lib/context/context.tsx";
 const Sheet: FC<SheetProps> = ({
   isOpen = false,
   activeSnapPointIndex = 0,
+  wrapperElement,
   snapPoints = [],
   onClose,
   onSnap,
@@ -28,6 +29,7 @@ const Sheet: FC<SheetProps> = ({
     activeSnapPointIndex,
     snapPoints,
     noInitialAnimation,
+    wrapperElement,
   };
 
   useLayoutEffect(() => {

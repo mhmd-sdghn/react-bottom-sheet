@@ -19,6 +19,7 @@ const onDragEventHandler = (
   const targetPosition = elementY.current + movementY;
 
   if (isSnapPointConfigObj(activeSnapPoint)) {
+    // TODO check for block all direction drag based on user config
     if (shouldBlockDragDown(activeSnapPoint, movementY)) return;
 
     handleScrollDrag(

@@ -29,6 +29,7 @@ export interface SheetProps extends SheetCallbacks {
   activeSnapPointIndex: number;
   children?: ReactNode;
   noInitialAnimation?: boolean;
+  wrapperElement?: HTMLElement;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {

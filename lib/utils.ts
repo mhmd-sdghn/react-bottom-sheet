@@ -96,11 +96,7 @@ export const getActiveValue = (
   dynamicHeightContent: number,
 ) => {
   if (!contentMode) {
-    if (
-      activeSnapPointIndex === 0 &&
-      dynamicHeightContent &&
-      dynamicHeightContent
-    )
+    if (activeSnapPointIndex === 0 && dynamicHeightContent)
       return screenHeight - dynamicHeightContent;
     return snapValues[activeSnapPointIndex];
   }

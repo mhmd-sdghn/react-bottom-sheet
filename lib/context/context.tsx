@@ -11,7 +11,7 @@ const SheetContext = createContext<SheetContextProviderValues | undefined>(
 export const SheetContextProvider: React.FC<SheetContextProviderProps> = (
   props,
 ) => {
-  const [dynamicHeightContent, setDynamicHeightContent] = useState(1);
+  const [dynamicHeightContent, setDynamicHeightContent] = useState(0);
 
   return (
     <SheetContext.Provider
