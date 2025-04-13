@@ -107,6 +107,13 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   useIsomorphicLayoutEffect(() => {
+    // handle scroll lock when active index changes from outside.
+    if (typeof activeSnapPoint === "object" && activeSnapPoint.scroll) {
+      scrollLock.current.deactivate();
+    } else {
+      ref.current?.scroll({ top: 0, behavior: "smooth" });
+      scrollLock.current.activate();
+    }
     animate(
       validateSnapTo({
         snapTo: activeSnapValue,
