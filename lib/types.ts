@@ -21,7 +21,6 @@ export type SnapPoint =
 export interface SheetCallbacks {
   onClose: () => void;
   onSnap: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
-  setSnapPoints: (SnapPoint: SnapPoint[]) => void;
 }
 
 export interface SheetProps extends SheetCallbacks {

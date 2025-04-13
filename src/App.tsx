@@ -3,7 +3,7 @@ import { Sheet, SnapPoints, SnapPointValues } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints, setSnapPoints] = useState<SnapPoints>([
+  const [snapPoints] = useState<SnapPoints>([
     {
       value: SnapPointValues.DynamicContentValue,
       drag: {
@@ -27,12 +27,6 @@ function App() {
     setIsOpen(false);
   };
 
-  const onSnapUpdate = (snapPoints: SnapPoints) => {
-    console.log("onSnapUpdate", snapPoints);
-
-    setSnapPoints(snapPoints);
-  };
-
   return (
     <>
       <button onClick={() => setIsOpen(!isOpen)}>
@@ -50,7 +44,6 @@ function App() {
         activeSnapPointIndex={activeSnapPointIndex}
         onSnap={onSnap}
         onClose={onClose}
-        setSnapPoints={onSnapUpdate}
       >
         <Sheet.Container>
           <Sheet.DynamicHeight>

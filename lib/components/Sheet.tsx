@@ -8,7 +8,6 @@ const Sheet: FC<SheetProps> = ({
   snapPoints = [],
   onClose,
   onSnap,
-  setSnapPoints,
   noInitialAnimation = false,
   children,
 }) => {
@@ -21,7 +20,6 @@ const Sheet: FC<SheetProps> = ({
   const callbacks = useRef({
     onSnap,
     onClose: handleOnClose,
-    setSnapPoints,
   });
 
   const context: SheetPropsContext = {
