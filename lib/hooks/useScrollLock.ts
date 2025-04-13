@@ -21,7 +21,7 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
     ref.current = {
       activate: () => {
         if (active === true) return;
-        target.style.overflowY = "none";
+        target.style.overflowY = "hidden";
         target.style.touchAction = "none";
         disableBodyScroll(target);
         active = true;
