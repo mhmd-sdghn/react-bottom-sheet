@@ -14,19 +14,20 @@ export default defineConfig({
   },
   plugins: [react()],
   build: {
+    copyPublicDir: false,
+    sourcemap: true,
     lib: {
       name: "react-bottom-sheet",
       entry: path.resolve(__dirname, "lib/index.ts"),
-      formats: ["es", "umd"],
     },
     rollupOptions: {
       external: [
         "react",
         "react-dom",
-        "@emotion/react",
         "@react-spring/web",
         "@use-gesture/react",
         "react/jsx-runtime",
+        "body-scroll-lock",
       ],
       output: [
         {
@@ -51,6 +52,21 @@ export default defineConfig({
             "react/jsx-runtime": "jsxRuntime",
             "@react-spring/web": "ReactSpringWeb",
             "@use-gesture/react": "ReactGesture",
+            "body-scroll-lock": "ScrollLock",
+          },
+        },
+        {
+          interop: "auto",
+          format: "cjs",
+          inlineDynamicImports: false,
+          entryFileNames: "index.cjs",
+          globals: {
+            react: "React",
+            "react-dom": "ReactDOM",
+            "react/jsx-runtime": "jsxRuntime",
+            "@react-spring/web": "ReactSpringWeb",
+            "@use-gesture/react": "ReactGesture",
+            "body-scroll-lock": "ScrollLock",
           },
         },
       ],

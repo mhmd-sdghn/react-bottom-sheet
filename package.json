@@ -2,16 +2,23 @@
   "name": "react-bottom-sheet",
   "version": "0.0.0",
   "type": "module",
-  "main": "dist/index.umd.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.umd.js"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.umd.js"
     },
     "./*": "./dist/*.js",
     "./package.json": "./package.json"
   },
+  "unpkg": "dist/index.umd.js",
+  "files": [
+    "dist"
+  ],
+  "author": "Mohammad Sadeghian <mo.sdghn@gmail.com>",
   "keywords": [
     "bottom-drawer",
     "bottom-sheet",
@@ -26,10 +33,6 @@
     "overlay",
     "draggableview"
   ],
-  "files": [
-    "dist"
-  ],
-  "author": "Mohammad Sadeghian <mo.sdghn@gmail.com>",
   "repository": {
     "type": "git",
     "url": ""
