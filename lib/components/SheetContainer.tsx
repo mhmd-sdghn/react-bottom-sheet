@@ -143,7 +143,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       style={{
         y,
         height: contentMode ? "fit-content" : "100dvh",
-        position: "absolute",
+        position: state.wrapperElement ? "absolute" : "fixed",
         top: 0,
         left: 0,
         right: 0,
@@ -163,7 +163,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
 
   if (isSSR()) return Sheet;
 
-  return createPortal(Sheet, document.body);
+  return createPortal(Sheet, state.wrapperElement || document.body);
 };
 
 export default SheetContainer;
