@@ -9,6 +9,7 @@ const Sheet: FC<SheetProps> = ({
   onClose,
   onSnap,
   setSnapPoints,
+  noInitialAnimation = false,
   children,
 }) => {
   const [present, setPresent] = useState(isOpen);
@@ -28,6 +29,7 @@ const Sheet: FC<SheetProps> = ({
     isOpen,
     activeSnapPointIndex,
     snapPoints,
+    noInitialAnimation,
   };
 
   useLayoutEffect(() => {

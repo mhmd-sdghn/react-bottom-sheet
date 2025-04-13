@@ -29,6 +29,7 @@ export interface SheetProps extends SheetCallbacks {
   snapPoints: SnapPoint[];
   activeSnapPointIndex: number;
   children?: ReactNode;
+  noInitialAnimation?: boolean;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
@@ -49,7 +50,15 @@ export interface DynamicHeightContentComponentProps {
   children?: ReactNode;
 }
 
-export type UseAnimAnimateFn = (_y: number, cb?: () => void) => void;
+export interface UseAnimAnimateFnOption {
+  jump?: boolean;
+}
+
+export type UseAnimAnimateFn = (
+  _y: number,
+  cb?: () => void,
+  options?: UseAnimAnimateFnOption,
+) => void;
 
 export type ScrollLock = ReturnType<typeof useScrollLock>;
 

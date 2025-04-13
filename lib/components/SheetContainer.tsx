@@ -1,12 +1,5 @@
 import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
-import {
-  Children,
-  FC,
-  ReactNode,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { Children, FC, ReactNode, useMemo, useRef } from "react";
 import useSheetContext from "@lib/context/useSheetContext.tsx";
 import {
   findDynamicHeightComponent,
@@ -121,21 +114,24 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
       ref.current?.scroll({ top: 0, behavior: "smooth" });
       scrollLock.current.activate();
     }
+
     animate(
       validateSnapTo({
         snapTo: activeSnapValue,
         sheetHeight: ref.current?.offsetHeight || 0,
       }),
+      undefined,
+      { jump: state.noInitialAnimation },
     );
-  }, [activeSnapValue]);
+  }, [activeSnapValue, state.noInitialAnimation]);
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!state.isOpen) {
       animate(screenHeight, () => {
         state.callbacks.current.onClose();
       });
     }
-  }, [state.isOpen]);
+  }, [animate, screenHeight, state.callbacks, state.isOpen]);
 
   // to fix type issue of react-spring
   const AnimatedDiv = animated("div");

@@ -7,12 +7,12 @@ const useAnim = () => {
 
   const [{ y }, api] = useSpring(() => ({ y: screenHeight }));
 
-  const animate: UseAnimAnimateFn = (_y, cb) => {
+  const animate: UseAnimAnimateFn = (_y, cb, options) => {
     const targetY = y.get() + _y > 0 ? _y : 0;
 
     api.start({
       to: async (next) => {
-        await next({ y: targetY });
+        await next({ y: targetY, immediate: options?.jump });
 
         if (typeof cb === "function") cb();
       },
