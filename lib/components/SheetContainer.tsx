@@ -126,6 +126,7 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
   }, [activeSnapValue, state.noInitialAnimation]);
 
   useIsomorphicLayoutEffect(() => {
+    // handle mount and unmount animations
     if (!state.isOpen) {
       animate(screenHeight, () => {
         state.callbacks.current.onClose();
