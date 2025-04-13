@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { FC, useLayoutEffect, useRef, useState } from "react";
 import { SheetPropsContext, SheetProps } from "@lib/types.ts";
 import { SheetContextProvider } from "@lib/context/context.tsx";
 
@@ -11,9 +11,15 @@ const Sheet: FC<SheetProps> = ({
   setSnapPoints,
   children,
 }) => {
+  const [present, setPresent] = useState(isOpen);
+  const handleOnClose = () => {
+    onClose();
+    setPresent(false);
+  };
+
   const callbacks = useRef({
     onSnap,
-    onClose,
+    onClose: handleOnClose,
     setSnapPoints,
   });
 
@@ -24,8 +30,13 @@ const Sheet: FC<SheetProps> = ({
     snapPoints,
   };
 
-  // TODO handle close animation (isOpen sets to false from outside)
-  return isOpen ? (
+  useLayoutEffect(() => {
+    if (isOpen) {
+      setPresent(true);
+    }
+  }, [isOpen]);
+
+  return present ? (
     <SheetContextProvider state={context}>{children}</SheetContextProvider>
   ) : null;
 };
