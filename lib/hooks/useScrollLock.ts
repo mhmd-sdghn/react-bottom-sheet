@@ -17,6 +17,7 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
 
     document.documentElement.style.overflowY = "hidden";
     document.body.style.overflowY = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
     document.body.style.overscrollBehavior = "none";
 
     ref.current = {
@@ -38,6 +39,7 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
     return () => {
       document.documentElement.style.overflowY = "";
       document.body.style.overflowY = "";
+      document.documentElement.style.overscrollBehavior = "";
       document.body.style.overscrollBehavior = "";
     };
   }, [targetRef]);
