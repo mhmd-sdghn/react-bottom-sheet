@@ -1,4 +1,4 @@
-import { RefObject, ReactNode, FC } from "react";
+import { RefObject, ReactNode, FC, CSSProperties } from "react";
 import { SnapPointDynamicValue } from "@lib/constants.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
 
@@ -30,6 +30,12 @@ export interface SheetProps extends SheetCallbacks {
   children?: ReactNode;
   noInitialAnimation?: boolean;
   wrapperElement?: HTMLElement;
+}
+
+export interface SheetContainerProps {
+  children: ReactNode;
+  style?: CSSProperties;
+  className?: string;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
@@ -97,6 +103,6 @@ export interface SnapBehaviorParams {
 }
 
 export type SheetCompound = FC<SheetProps> & {
-  Container: FC<{ children: ReactNode }>;
+  Container: FC<SheetContainerProps>;
   DynamicHeight: FC<{ children: ReactNode }>;
 };

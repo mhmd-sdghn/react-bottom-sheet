@@ -1,5 +1,5 @@
 import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
-import { Children, FC, ReactNode, useMemo, useRef } from "react";
+import { Children, FC, useMemo, useRef } from "react";
 import useSheetContext from "@lib/context/useSheetContext.tsx";
 import {
   findDynamicHeightComponent,
@@ -7,10 +7,10 @@ import {
   isContentMode,
   isSSR,
   validateSnapTo,
+  getSnapValues,
 } from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
 import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
-import { getSnapValues } from "../utils.ts";
 import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
 import { createPortal } from "react-dom";
 import { useGesture } from "@use-gesture/react";
@@ -19,8 +19,13 @@ import onDragEventHandler from "@lib/events/onDragEventHandler.ts";
 import onDragStartEventHandler from "@lib/events/onDragStartEventHandler.ts";
 import onDragEndEventHandler from "@lib/events/onDragEndEventHandler.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
+import { SheetContainerProps } from "@lib/types.ts";
 
-const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
+const SheetContainer: FC<SheetContainerProps> = ({
+  children,
+  style,
+  className,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
   const screenHeight = useScreenHeight();
@@ -140,7 +145,9 @@ const SheetContainer: FC<{ children: ReactNode }> = ({ children }) => {
     <AnimatedDiv
       ref={ref}
       {...gestureProps()}
+      className={className}
       style={{
+        ...style,
         y,
         height: contentMode ? "fit-content" : "100%",
         position: state.wrapperElement ? "absolute" : "fixed",
