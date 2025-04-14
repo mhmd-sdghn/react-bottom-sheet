@@ -125,8 +125,10 @@ const SheetContainer: FC<SheetContainerProps> = ({
         snapTo: activeSnapValue,
         sheetHeight: ref.current?.offsetHeight || 0,
       }),
-      undefined,
-      { jump: state.noInitialAnimation },
+      () => {
+        state.firstMount.current = false;
+      },
+      { jump: state.firstMount.current && state.noInitialAnimation },
     );
   }, [activeSnapValue, state.noInitialAnimation]);
 

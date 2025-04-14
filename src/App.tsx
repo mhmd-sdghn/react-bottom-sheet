@@ -3,24 +3,17 @@ import { Sheet, SnapPoints, SnapPointDynamicValue } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints] = useState<SnapPoints>([
-    {
-      value: SnapPointDynamicValue,
-      drag: {
-        down: false,
-      },
-    },
-    {
-      value: 1,
-      scroll: true,
-    },
-  ]);
-  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
+  const [snapPoints] = useState<SnapPoints>([0.5, { value: 1, scroll: true }]);
+  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(1);
 
   const onSnap = (index: number) => {
     // index is -1 if onClose is called
     if (index !== -1) setActiveSnapPointIndex(index);
   };
+
+  setTimeout(() => {
+    setActiveSnapPointIndex(0);
+  }, 2000);
 
   const onClose = () => {
     setActiveSnapPointIndex(0);
@@ -39,6 +32,7 @@ function App() {
         index 0
       </button>
       <Sheet
+        noInitialAnimation={true}
         isOpen={isOpen}
         snapPoints={snapPoints}
         activeSnapPointIndex={activeSnapPointIndex}
@@ -46,17 +40,6 @@ function App() {
         onClose={onClose}
       >
         <Sheet.Container>
-          <Sheet.DynamicHeight>
-            <div
-              style={{
-                width: "100%",
-                background: "blue",
-                height: activeSnapPointIndex === 0 ? 100 : 300,
-                transition: "all 0.5s ease",
-              }}
-            ></div>
-          </Sheet.DynamicHeight>
-
           <div>
             <input placeholder="salam" style={{ fontSize: 18 }} />
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

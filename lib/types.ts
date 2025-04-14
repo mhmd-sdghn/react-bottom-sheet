@@ -40,6 +40,7 @@ export interface SheetContainerProps {
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
   callbacks: RefObject<SheetCallbacks>;
+  firstMount: RefObject<boolean>;
 };
 
 export type SheetContextProviderProps = {
