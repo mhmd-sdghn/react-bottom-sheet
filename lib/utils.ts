@@ -2,7 +2,7 @@ import { ReactNode, Children, isValidElement, ReactElement } from "react";
 import {
   DragOffsetThreshold,
   DynamicHeightComponentId,
-  SnapPointValues,
+  SnapPointDynamicValue,
 } from "@lib/constants.ts";
 import { SnapPoint } from "@lib/types.ts";
 
@@ -108,10 +108,10 @@ const isDynamicSnapValue = (snap: SnapPoint) => {
   if (
     typeof snap === "object" &&
     "value" in snap &&
-    snap.value === SnapPointValues.DynamicContentValue
+    snap.value === SnapPointDynamicValue
   )
     return true;
-  return snap === SnapPointValues.DynamicContentValue;
+  return snap === SnapPointDynamicValue;
 };
 
 /** Converts any valid snap point format to pixels */
@@ -149,12 +149,12 @@ const validateDynamicSnapPosition = (
   if (dynamicIndex === -1) {
     console.warn(
       "[DynamicHeight] Required configuration missing: \n" +
-        "    When using DynamicHeight component, you must include 'SnapPointValues.DynamicContentValue' \n" +
+        "    When using DynamicHeight component, you must include 'SnapPointDynamicValue' \n" +
         "    as your FIRST snap point for proper layout calculations.",
     );
   } else if (dynamicIndex > 0) {
     console.warn(`[DynamicHeight] Invalid configuration:
-    'SnapPointValues.DynamicContentValue' must be the FIRST snap point in the array 
+    'SnapPointDynamicValue' must be the FIRST snap point in the array 
     to ensure correct dynamic content height calculations. Found at position ${dynamicIndex}.`);
   }
 };

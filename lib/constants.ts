@@ -3,6 +3,4 @@ export const DynamicHeightComponentId =
 
 export const DragOffsetThreshold = 80;
 
-export enum SnapPointValues {
-  DynamicContentValue = "dynamic",
-}
+export const SnapPointDynamicValue = "dynamic";

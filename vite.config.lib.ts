@@ -3,6 +3,7 @@
 import path from "path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import dts from "vite-plugin-dts";
 
 const LibraryName = "react-bottom-sheet";
 
@@ -12,7 +13,13 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./lib"),
     },
   },
-  plugins: [react()],
+  plugins: [
+    dts({
+      rollupTypes: true,
+      tsconfigPath: "./tsconfig.lib.declarations.json",
+    }),
+    react(),
+  ],
   build: {
     copyPublicDir: false,
     sourcemap: true,

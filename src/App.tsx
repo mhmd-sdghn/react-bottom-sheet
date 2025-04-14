@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Sheet, SnapPoints, SnapPointValues } from "@lib/index";
+import { Sheet, SnapPoints, SnapPointDynamicValue } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [snapPoints] = useState<SnapPoints>([
     {
-      value: SnapPointValues.DynamicContentValue,
+      value: SnapPointDynamicValue,
       drag: {
         down: false,
       },

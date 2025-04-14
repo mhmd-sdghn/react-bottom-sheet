@@ -1,5 +1,5 @@
 import { FC, useLayoutEffect, useRef, useState } from "react";
-import { SheetPropsContext, SheetProps } from "@lib/types.ts";
+import type { SheetPropsContext, SheetProps } from "@lib/types.ts";
 import { SheetContextProvider } from "@lib/context/context.tsx";
 
 const Sheet: FC<SheetProps> = ({
@@ -8,7 +8,7 @@ const Sheet: FC<SheetProps> = ({
   wrapperElement,
   snapPoints = [],
   onClose,
-  onSnap,
+  onSnap = () => null,
   noInitialAnimation = false,
   children,
 }) => {

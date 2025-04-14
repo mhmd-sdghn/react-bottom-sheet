@@ -1,9 +1,9 @@
-import { RefObject, ReactNode } from "react";
-import { SnapPointValues } from "@lib/constants.ts";
+import { RefObject, ReactNode, FC } from "react";
+import { SnapPointDynamicValue } from "@lib/constants.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
 
 export interface SnapPointConfigObj {
-  value: number | SnapPointValues.DynamicContentValue;
+  value: number | typeof SnapPointDynamicValue;
   scroll?: boolean;
   drag?:
     | boolean
@@ -15,12 +15,12 @@ export interface SnapPointConfigObj {
 
 export type SnapPoint =
   | number
-  | SnapPointValues.DynamicContentValue
+  | typeof SnapPointDynamicValue
   | SnapPointConfigObj;
 
 export interface SheetCallbacks {
   onClose: () => void;
-  onSnap: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
+  onSnap?: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
 }
 
 export interface SheetProps extends SheetCallbacks {
@@ -95,3 +95,8 @@ export interface SnapBehaviorParams {
   activeSnapValue: number;
   state: DragEndEventHandlerFn;
 }
+
+export type SheetCompound = FC<SheetProps> & {
+  Container: FC<{ children: ReactNode }>;
+  DynamicHeight: FC<{ children: ReactNode }>;
+};
