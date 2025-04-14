@@ -4,8 +4,8 @@ import {
   ScrollLock,
   SnapPointConfigObj,
   UseAnimAnimateFn,
+  SnapPoint,
 } from "@lib/types.ts";
-import { SnapPoint } from "@lib/index.ts";
 
 const onDragEventHandler = (
   containerRef: RefObject<HTMLDivElement | null>,
@@ -20,7 +20,7 @@ const onDragEventHandler = (
 
   if (isSnapPointConfigObj(activeSnapPoint)) {
     // TODO check for block all direction drag based on user config
-    if (shouldBlockDragDown(activeSnapPoint, movementY)) return;
+    if (shouldBlockDrag(activeSnapPoint, movementY)) return;
 
     handleScrollDrag(
       activeSnapPoint,
@@ -40,16 +40,20 @@ const onDragEventHandler = (
 const isSnapPointConfigObj = (point: SnapPoint): point is SnapPointConfigObj =>
   typeof point === "object" && "value" in point;
 
-const shouldBlockDragDown = (
+const shouldBlockDrag = (
   snapConfig: SnapPointConfigObj,
   movementY: number,
 ): boolean => {
-  if (movementY <= 0) return false;
-
+  const direction = movementY < 0 ? "up" : movementY > 0 ? "down" : "";
   const dragConfig = snapConfig.drag;
-  return typeof dragConfig === "object"
-    ? dragConfig.down === false
-    : dragConfig === false;
+  const isDragConfigAnObject = typeof dragConfig === "object";
+
+  if (isDragConfigAnObject) {
+    if (direction === "down") return dragConfig.down === false;
+    if (direction === "up") return dragConfig.up === false;
+  }
+
+  return dragConfig === false;
 };
 
 const handleScrollDrag = (
