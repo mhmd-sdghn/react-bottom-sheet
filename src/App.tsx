@@ -1,19 +1,15 @@
 import { useState } from "react";
-import { Sheet, SnapPoints, SnapPointDynamicValue } from "@lib/index";
+import { Sheet, SnapPoints } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [snapPoints] = useState<SnapPoints>([0.5, { value: 1, scroll: true }]);
-  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(1);
+  const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
     // index is -1 if onClose is called
     if (index !== -1) setActiveSnapPointIndex(index);
   };
-
-  setTimeout(() => {
-    setActiveSnapPointIndex(0);
-  }, 2000);
 
   const onClose = () => {
     setActiveSnapPointIndex(0);
