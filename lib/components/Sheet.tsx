@@ -5,7 +5,6 @@ import { SheetContextProvider } from "@lib/context/context.tsx";
 const Sheet: FC<SheetProps> = ({
   isOpen = false,
   activeSnapPointIndex = 0,
-  wrapperElement,
   snapPoints = [],
   onClose,
   onSnap = () => null,
@@ -13,7 +12,6 @@ const Sheet: FC<SheetProps> = ({
   children,
 }) => {
   const [present, setPresent] = useState(isOpen);
-  const firstMount = useRef(true);
   const handleOnClose = () => {
     onClose();
     setPresent(false);
@@ -27,11 +25,9 @@ const Sheet: FC<SheetProps> = ({
   const context: SheetPropsContext = {
     callbacks,
     isOpen,
-    firstMount,
     activeSnapPointIndex,
     snapPoints,
     noInitialAnimation,
-    wrapperElement,
   };
 
   useLayoutEffect(() => {
