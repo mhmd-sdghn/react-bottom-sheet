@@ -31,7 +31,6 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
         if (active === false) return;
         target.style.overflowY = "auto";
         target.style.touchAction = "pan-y";
-        //enableBodyScroll(target);
         active = false;
       },
     };
@@ -42,7 +41,7 @@ function useScrollLock(targetRef: RefObject<HTMLDivElement | null>) {
       document.documentElement.style.overscrollBehavior = "";
       document.body.style.overscrollBehavior = "";
     };
-  }, [targetRef]);
+  }, [targetRef.current]);
 
   return ref;
 }
