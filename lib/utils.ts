@@ -4,7 +4,7 @@ import {
   DynamicHeightComponentId,
   SnapPointDynamicValue,
 } from "@lib/constants.ts";
-import { SnapPoint } from "@lib/types.ts";
+import { SnapPoint, SnapPointConfigObj } from "@lib/types.ts";
 
 export const isSSR = () => typeof window === "undefined";
 
@@ -76,7 +76,7 @@ export function validateSnapTo({
 
 export const isContentMode = (
   snapValues: SnapPoint[],
-  screenHeight: number,
+  viewHeight: number,
   dynamicHeightContent: number,
 ) => {
   // if there is no snap value or if the only snap value is
@@ -84,20 +84,20 @@ export const isContentMode = (
   return (
     !snapValues.length ||
     (snapValues.length === 1 &&
-      snapValues[0] === screenHeight - dynamicHeightContent)
+      snapValues[0] === viewHeight - dynamicHeightContent)
   );
 };
 
 export const getActiveValue = (
   snapValues: number[],
-  screenHeight: number,
+  viewHeight: number,
   contentMode: boolean,
   activeSnapPointIndex: number,
   dynamicHeightContent: number,
 ) => {
   if (!contentMode) {
     if (activeSnapPointIndex === 0 && dynamicHeightContent)
-      return screenHeight - dynamicHeightContent;
+      return viewHeight - dynamicHeightContent;
     return snapValues[activeSnapPointIndex];
   }
 
@@ -115,16 +115,16 @@ const isDynamicSnapValue = (snap: SnapPoint) => {
 };
 
 /** Converts any valid snap point format to pixels */
-const convertSnapToPixels = (snap: SnapPoint, screenHeight: number): number => {
+const convertSnapToPixels = (snap: SnapPoint, viewHeight: number): number => {
   if (typeof snap === "object" && "value" in snap) {
-    return calculatePixelValue(snap.value, screenHeight);
+    return calculatePixelValue(snap.value, viewHeight);
   }
-  return calculatePixelValue(snap, screenHeight);
+  return calculatePixelValue(snap, viewHeight);
 };
 
 const calculatePixelValue = (
   value: string | number,
-  screenHeight: number,
+  viewHeight: number,
 ): number => {
   const numericValue = typeof value === "string" ? parseFloat(value) : value;
 
@@ -135,9 +135,9 @@ const calculatePixelValue = (
 
   // Handle percentage values (<=1) vs absolute pixels
   const heightOffset =
-    numericValue <= 1 ? numericValue * screenHeight : numericValue;
+    numericValue <= 1 ? numericValue * viewHeight : numericValue;
 
-  return Math.max(screenHeight - heightOffset, 0);
+  return Math.max(viewHeight - heightOffset, 0);
 };
 
 const validateDynamicSnapPosition = (
@@ -169,7 +169,7 @@ const sortSnapValues = (values: number[]): number[] =>
 
 export const getSnapValues = (
   snapPoints: SnapPoint[],
-  screenHeight: number,
+  viewHeight: number,
   hasDynamicHeightComponent: boolean,
 ): number[] => {
   if (!Array.isArray(snapPoints)) return [];
@@ -181,12 +181,12 @@ export const getSnapValues = (
     // Handle dynamic content marker
     if (isDynamicSnapValue(snap)) {
       dynamicSnapIndex = index;
-      processedValues.push(screenHeight);
+      processedValues.push(viewHeight);
       return;
     }
 
     // Convert different formats to pixel value
-    const pixelValue = convertSnapToPixels(snap, screenHeight);
+    const pixelValue = convertSnapToPixels(snap, viewHeight);
     processedValues.push(pixelValue);
   });
 
@@ -196,3 +196,11 @@ export const getSnapValues = (
   // Sort zero (full-height) last
   return sortSnapValues(processedValues);
 };
+
+export const clamp = (num: number, min: number, max: number) => {
+  return num <= min ? min : num >= max ? max : num;
+};
+
+export const isSnapPointConfigObj = (
+  point: SnapPoint,
+): point is SnapPointConfigObj => typeof point === "object" && "value" in point;
