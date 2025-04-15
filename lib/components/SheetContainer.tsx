@@ -11,7 +11,7 @@ import {
 } from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
 import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
-import useScreenHeight from "@lib/hooks/useScreenHeight.tsx";
+import useViewHeight from "@lib/hooks/useViewHeight.tsx";
 import { createPortal } from "react-dom";
 import { useGesture } from "@use-gesture/react";
 import useAnim from "@lib/hooks/useAnim.ts";
@@ -25,18 +25,20 @@ const SheetContainer: FC<SheetContainerProps> = ({
   children,
   style,
   className,
+  wrapper,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-  const screenHeight = useScreenHeight();
+  const viewHeight = useViewHeight(wrapper);
+  const firstMount = useRef(true);
   const scrollY = useRef(0);
   const elementY = useRef(0);
   const scrollLock = useScrollLock(ref);
   const DynamicHeightComponent = findDynamicHeightComponent(children);
+
   const snapValues = useMemo(
-    () =>
-      getSnapValues(state.snapPoints, screenHeight, !!DynamicHeightComponent),
-    [state.snapPoints, screenHeight, DynamicHeightComponent],
+    () => getSnapValues(state.snapPoints, viewHeight, !!DynamicHeightComponent),
+    [state.snapPoints, viewHeight, DynamicHeightComponent],
   );
   /**
    * When there is no snap point, we assume there is one snap point while the bottom sheet is open.
@@ -48,12 +50,12 @@ const SheetContainer: FC<SheetContainerProps> = ({
    */
   const contentMode = isContentMode(
     snapValues,
-    screenHeight,
+    viewHeight,
     state.dynamicHeightContent,
   );
   const activeSnapValue = getActiveValue(
     snapValues,
-    screenHeight,
+    viewHeight,
     contentMode,
     state.activeSnapPointIndex,
     state.dynamicHeightContent,
@@ -69,6 +71,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       activeSnapPoint,
       elementY,
       movementY,
+      viewHeight,
     }),
   );
   const onDragEnd = useEffectEvent((offsetY: number) =>
@@ -80,7 +83,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
         activeSnapPointIndex: state.activeSnapPointIndex,
         snapPoints: state.snapPoints,
         dynamicHeightContent: state.dynamicHeightContent,
-        screenHeight: screenHeight,
+        viewHeight,
         activeSnapValue,
         contentMode,
         offsetY,
@@ -99,7 +102,9 @@ const SheetContainer: FC<SheetContainerProps> = ({
         onDragStart();
       },
       onDrag: ({ movement, last }) => (!last ? onDrag(movement[1]) : null),
-      onDragEnd: ({ movement }) => onDragEnd(movement[1]),
+      onDragEnd: ({ movement }) => {
+        onDragEnd(movement[1]);
+      },
       onScroll: ({ values }) => {
         scrollY.current = values[1];
       },
@@ -126,33 +131,34 @@ const SheetContainer: FC<SheetContainerProps> = ({
         sheetHeight: ref.current?.offsetHeight || 0,
       }),
       () => {
-        state.firstMount.current = false;
+        firstMount.current = false;
       },
-      { jump: state.firstMount.current && state.noInitialAnimation },
+      { jump: firstMount.current && state.noInitialAnimation },
     );
   }, [activeSnapValue, state.noInitialAnimation]);
 
   useIsomorphicLayoutEffect(() => {
     // handle mount and unmount animations
     if (!state.isOpen) {
-      animate(screenHeight, () => {
+      animate(viewHeight, () => {
         state.callbacks.current.onClose();
       });
     }
-  }, [animate, screenHeight, state.callbacks, state.isOpen]);
+  }, [animate, viewHeight, state.callbacks, state.isOpen]);
 
   // to fix type issue of react-spring
   const AnimatedDiv = animated("div");
   const Sheet = (
     <AnimatedDiv
       ref={ref}
+      id="mmd5"
       {...gestureProps()}
       className={className}
       style={{
         ...style,
         y,
         height: contentMode ? "fit-content" : "100%",
-        position: state.wrapperElement ? "absolute" : "fixed",
+        position: wrapper ? "absolute" : "fixed",
         top: 0,
         left: 0,
         right: 0,
@@ -172,8 +178,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
   );
 
   if (isSSR()) return Sheet;
-
-  return createPortal(Sheet, state.wrapperElement || document.body);
+  return createPortal(Sheet, wrapper || document.body);
 };
 
 export default SheetContainer;
