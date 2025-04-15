@@ -8,7 +8,7 @@ import {
   UseAnimAnimateFn,
   SnapPoint,
 } from "@lib/types.ts";
-import { getClosestIndex } from "@lib/utils.ts";
+import { clamp, getClosestIndex, isSnapPointConfigObj } from "@lib/utils.ts";
 import { DragOffsetThreshold } from "@lib/constants.ts";
 
 const onDragEndEventHandler = (
@@ -21,7 +21,7 @@ const onDragEndEventHandler = (
   const {
     offsetY,
     contentMode,
-    screenHeight,
+    viewHeight,
     dynamicHeightContent,
     snapValues,
     activeSnapPointIndex: currentSnapIndex,
@@ -37,41 +37,37 @@ const onDragEndEventHandler = (
 
   if (isAtTop) {
     springY.set(0);
-    return;
+  } else if (shouldMaintainContentHeight) {
+    springY.set(viewHeight - dynamicHeightContent);
+  } else {
+    const targetSnapIndex = calculateTargetSnapIndex(
+      contentMode,
+      snapValues,
+      currentPosition,
+      offsetY,
+      currentSnapIndex,
+    );
+
+    handleSnapBehavior({
+      targetSnapIndex,
+      contentMode,
+      snapPoints,
+      viewHeight,
+      currentSnapIndex,
+      offsetY,
+      callbacks,
+      animate,
+      activeSnapValue,
+      state,
+    });
+
+    updateScrollLock(
+      ref,
+      scrollLock,
+      scrollY,
+      state.snapPoints[targetSnapIndex ?? currentSnapIndex],
+    );
   }
-
-  if (shouldMaintainContentHeight) {
-    springY.set(screenHeight - dynamicHeightContent);
-    return;
-  }
-
-  const targetSnapIndex = calculateTargetSnapIndex(
-    contentMode,
-    snapValues,
-    currentPosition,
-    offsetY,
-    currentSnapIndex,
-  );
-
-  handleSnapBehavior({
-    targetSnapIndex,
-    contentMode,
-    snapPoints,
-    screenHeight,
-    currentSnapIndex,
-    offsetY,
-    callbacks,
-    animate,
-    activeSnapValue,
-    state,
-  });
-
-  updateScrollLock(
-    ref,
-    scrollLock,
-    scrollY,
-    state.snapPoints[targetSnapIndex ?? currentSnapIndex],
-  );
 };
 
 // Helper functions
@@ -98,7 +94,7 @@ const handleSnapBehavior = ({
   targetSnapIndex,
   contentMode,
   snapPoints,
-  screenHeight,
+  viewHeight,
   currentSnapIndex,
   offsetY,
   callbacks,
@@ -117,17 +113,14 @@ const handleSnapBehavior = ({
     handleCloseBehavior(
       targetSnapIndex,
       snapPoints,
-      screenHeight,
+      viewHeight,
       animate,
       callbacks,
     );
-    return;
-  }
-
-  if (
+  } else if (
     shouldTriggerSnapCallback(
       snapPoints,
-      screenHeight,
+      viewHeight,
       state.dynamicHeightContent,
     )
   ) {
@@ -157,10 +150,11 @@ const determineShouldClose = (
   );
 };
 
+// TODO use wrapper height || screen height instead
 const handleCloseBehavior = (
   targetSnapIndex: number,
   snapPoints: SnapPoint[],
-  screenHeight: number,
+  viewHeight: number,
   animate: UseAnimAnimateFn,
   callbacks: RefObject<SheetCallbacks>,
 ) => {
@@ -168,21 +162,23 @@ const handleCloseBehavior = (
 
   if (isDragDownDisabled(nextSnap)) return;
 
-  animate(screenHeight, () => {
-    callbacks.current.onSnap(-1, null);
+  animate(viewHeight, () => {
+    if (typeof callbacks.current.onSnap === "function") {
+      callbacks.current.onSnap(-1, null);
+    }
     callbacks.current.onClose();
   });
 };
 
 const shouldTriggerSnapCallback = (
   snapPoints: SnapPoint[],
-  screenHeight: number,
+  viewHeight: number,
   dynamicHeight: number,
 ) => {
   const hasCustomSnapPoints =
     Array.isArray(snapPoints) && snapPoints.length > 0;
   const onlyDynamicSnap =
-    snapPoints.length === 1 && snapPoints[0] === screenHeight - dynamicHeight;
+    snapPoints.length === 1 && snapPoints[0] === viewHeight - dynamicHeight;
 
   return hasCustomSnapPoints && !onlyDynamicSnap;
 };
@@ -212,7 +208,8 @@ const updateScrollLock = (
 ) => {
   if (!ref.current) return;
 
-  const shouldEnableScroll = typeof snapPoint === "object" && snapPoint.scroll;
+  const shouldEnableScroll =
+    isSnapPointConfigObj(snapPoint) && snapPoint.scroll;
   const needsScrollReset = scrollY.current !== 0;
 
   if (shouldEnableScroll) {
@@ -225,14 +222,10 @@ const updateScrollLock = (
   }
 };
 
-const clamp = (num: number, min: number, max: number) => {
-  return num <= min ? min : num >= max ? max : num;
-};
-
 const isDragDownDisabled = (snapPoint?: SnapPoint) => {
   if (!snapPoint) return false;
   if (typeof snapPoint === "number") return false;
-  if (typeof snapPoint === "object" && "value" in snapPoint) {
+  if (isSnapPointConfigObj(snapPoint)) {
     const dragConfig = snapPoint.drag;
     if (typeof dragConfig === "boolean") return !dragConfig;
     return dragConfig?.down === false;

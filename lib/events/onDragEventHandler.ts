@@ -4,42 +4,45 @@ import {
   ScrollLock,
   SnapPointConfigObj,
   UseAnimAnimateFn,
-  SnapPoint,
 } from "@lib/types.ts";
+import { clamp, isSnapPointConfigObj } from "@lib/utils.ts";
 
 const onDragEventHandler = (
   containerRef: RefObject<HTMLDivElement | null>,
   animate: UseAnimAnimateFn,
   state: OnDragEventHandlerState,
 ) => {
-  const { movementY, activeSnapPoint, scrollY, scrollLock, elementY } = state;
+  const {
+    movementY,
+    activeSnapPoint,
+    scrollY,
+    scrollLock,
+    elementY,
+    viewHeight,
+  } = state;
 
   if (!containerRef.current) return;
 
   const targetPosition = elementY.current + movementY;
 
   if (isSnapPointConfigObj(activeSnapPoint)) {
-    // TODO check for block all direction drag based on user config
-    if (shouldBlockDrag(activeSnapPoint, movementY)) return;
-
-    handleScrollDrag(
-      activeSnapPoint,
-      movementY,
-      scrollY,
-      scrollLock,
-      targetPosition,
-      animate,
-    );
-    return;
+    if (!shouldBlockDrag(activeSnapPoint, movementY)) {
+      handleScrollDrag(
+        activeSnapPoint,
+        movementY,
+        scrollY,
+        scrollLock,
+        targetPosition,
+        animate,
+        viewHeight,
+      );
+    }
+  } else {
+    animate(targetPosition);
   }
-
-  animate(targetPosition);
 };
 
 // Helper functions
-const isSnapPointConfigObj = (point: SnapPoint): point is SnapPointConfigObj =>
-  typeof point === "object" && "value" in point;
-
 const shouldBlockDrag = (
   snapConfig: SnapPointConfigObj,
   movementY: number,
@@ -63,6 +66,7 @@ const handleScrollDrag = (
   scrollLock: ScrollLock,
   targetPosition: number,
   animate: UseAnimAnimateFn,
+  viewHeight: number,
 ) => {
   const isScrollingEnabled = snapConfig.scroll;
   const isDraggingDown = movementY > 0;
@@ -70,9 +74,9 @@ const handleScrollDrag = (
 
   if (isScrollingEnabled && isDraggingDown && isAtTop) {
     scrollLock.current.activate();
-    animate(targetPosition);
+    animate(clamp(targetPosition, 0, viewHeight));
   } else if (!isScrollingEnabled) {
-    animate(targetPosition);
+    animate(clamp(targetPosition, 0, viewHeight));
   }
 };
 

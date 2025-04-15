@@ -1,0 +1,27 @@
+import { useState } from "react";
+import { isSSR } from "../utils";
+import { useIsomorphicLayoutEffect } from "@react-spring/web";
+
+function useViewHeight(wrapper?: HTMLElement | null) {
+  const [height, setHeight] = useState(
+    !isSSR() ? (wrapper ? wrapper.offsetHeight : window.innerHeight) : 0,
+  );
+
+  useIsomorphicLayoutEffect(() => {
+    function handler() {
+      setHeight(wrapper ? wrapper.offsetHeight : window.innerHeight);
+    }
+
+    handler();
+
+    (wrapper || window).addEventListener("resize", handler);
+
+    return () => {
+      (wrapper || window).removeEventListener("resize", handler);
+    };
+  }, [wrapper]);
+
+  return height;
+}
+
+export default useViewHeight;
