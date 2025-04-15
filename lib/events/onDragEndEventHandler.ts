@@ -150,7 +150,6 @@ const determineShouldClose = (
   );
 };
 
-// TODO use wrapper height || screen height instead
 const handleCloseBehavior = (
   targetSnapIndex: number,
   snapPoints: SnapPoint[],
