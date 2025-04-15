@@ -151,7 +151,6 @@ const SheetContainer: FC<SheetContainerProps> = ({
   const Sheet = (
     <AnimatedDiv
       ref={ref}
-      id="mmd5"
       {...gestureProps()}
       className={className}
       style={{
