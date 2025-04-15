@@ -176,8 +176,8 @@ const SheetContainer: FC<SheetContainerProps> = ({
     </AnimatedDiv>
   );
 
-  if (isSSR()) return Sheet;
-  return createPortal(Sheet, wrapper || document.body);
+  if (isSSR() || wrapper) return Sheet;
+  return createPortal(Sheet, document.body);
 };
 
 export default SheetContainer;
