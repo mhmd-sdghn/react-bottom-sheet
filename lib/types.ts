@@ -20,7 +20,7 @@ export type SnapPoint =
 
 export interface SheetCallbacks {
   onClose: () => void;
-  onSnap?: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
+  onSnap: (snapPointIndex: number, snapPoint: SnapPoint | null) => void;
 }
 
 export interface SheetProps extends SheetCallbacks {
@@ -29,18 +29,17 @@ export interface SheetProps extends SheetCallbacks {
   activeSnapPointIndex: number;
   children?: ReactNode;
   noInitialAnimation?: boolean;
-  wrapperElement?: HTMLElement;
 }
 
 export interface SheetContainerProps {
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
+  wrapper?: HTMLElement | null;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
   callbacks: RefObject<SheetCallbacks>;
-  firstMount: RefObject<boolean>;
 };
 
 export type SheetContextProviderProps = {
@@ -72,7 +71,7 @@ export type ScrollLock = ReturnType<typeof useScrollLock>;
 export interface DragEndEventHandlerFn {
   offsetY: number;
   contentMode: boolean;
-  screenHeight: number;
+  viewHeight: number;
   dynamicHeightContent: number;
   snapValues: number[];
   activeSnapPointIndex: number;
@@ -87,6 +86,7 @@ export interface OnDragEventHandlerState {
   activeSnapPoint: SnapPoint;
   elementY: RefObject<number>;
   scrollY: RefObject<number>;
+  viewHeight: number;
   scrollLock: ReturnType<typeof useScrollLock>;
 }
 
@@ -94,7 +94,7 @@ export interface SnapBehaviorParams {
   targetSnapIndex: number;
   contentMode: boolean;
   snapPoints: SnapPoint[];
-  screenHeight: number;
+  viewHeight: number;
   currentSnapIndex: number;
   offsetY: number;
   callbacks: RefObject<SheetCallbacks>;
