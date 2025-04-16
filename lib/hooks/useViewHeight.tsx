@@ -8,6 +8,8 @@ function useViewHeight(wrapper?: HTMLElement | null) {
   );
 
   useIsomorphicLayoutEffect(() => {
+    if (isSSR()) return;
+
     function handler() {
       setHeight(wrapper ? wrapper.offsetHeight : window.innerHeight);
     }

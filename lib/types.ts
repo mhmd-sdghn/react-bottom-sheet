@@ -35,7 +35,7 @@ export interface SheetContainerProps {
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
-  wrapper?: HTMLElement | null;
+  wrapper?: RefObject<HTMLElement>;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {

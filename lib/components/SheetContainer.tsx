@@ -30,7 +30,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-  const viewHeight = useViewHeight(wrapper);
+  const viewHeight = useViewHeight(wrapper?.current);
   const firstMount = useRef(true);
   const scrollY = useRef(0);
   const elementY = useRef(0);
@@ -162,8 +162,12 @@ const SheetContainer: FC<SheetContainerProps> = ({
       style={{
         ...style,
         y,
-        height: contentMode ? "fit-content" : wrapper ? "100%" : "100dvh",
-        position: wrapper ? "absolute" : "fixed",
+        height: contentMode
+          ? "fit-content"
+          : wrapper?.current
+            ? "100%"
+            : "100dvh",
+        position: wrapper?.current ? "absolute" : "fixed",
         top: 0,
         left: 0,
         right: 0,
@@ -181,7 +185,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
     </AnimatedDiv>
   );
 
-  if (isSSR() || wrapper) return Sheet;
+  if (isSSR() || wrapper?.current) return Sheet;
   return createPortal(Sheet, document.body);
 };
 
