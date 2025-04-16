@@ -12,7 +12,6 @@ import {
 } from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
 import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
-import useViewHeight from "@lib/hooks/useViewHeight.tsx";
 import { createPortal } from "react-dom";
 import { useGesture } from "@use-gesture/react";
 import useAnim from "@lib/hooks/useAnim.ts";
@@ -21,6 +20,7 @@ import onDragStartEventHandler from "@lib/events/onDragStartEventHandler.ts";
 import onDragEndEventHandler from "@lib/events/onDragEndEventHandler.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
 import { SheetContainerProps } from "@lib/types.ts";
+import useWatchHeight from "@lib/hooks/useWatchHeight.ts";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
@@ -30,7 +30,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-  const viewHeight = useViewHeight(wrapper?.current);
+  const viewHeight = useWatchHeight(wrapper);
   const firstMount = useRef(true);
   const scrollY = useRef(0);
   const elementY = useRef(0);
@@ -62,7 +62,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
     state.activeSnapPointIndex,
     state.dynamicHeightContent,
   );
-  const { y, animate } = useAnim();
+  const { y, animate } = useAnim(viewHeight);
   const activeSnapPoint = getActiveSnapPoint(
     state.activeSnapPointIndex,
     state.dynamicHeightContent,

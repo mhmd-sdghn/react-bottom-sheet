@@ -1,11 +1,8 @@
 import { useSpring } from "@react-spring/web";
-import useViewHeight from "@lib/hooks/useViewHeight.tsx";
 import { UseAnimAnimateFn } from "@lib/types.ts";
 
-const useAnim = () => {
-  const screenHeight = useViewHeight();
-
-  const [{ y }, api] = useSpring(() => ({ y: screenHeight }));
+const useAnim = (viewHeight: number) => {
+  const [{ y }, api] = useSpring(() => ({ y: viewHeight }));
 
   const animate: UseAnimAnimateFn = (_y, cb, options) => {
     const targetY = y.get() + _y > 0 ? _y : 0;
