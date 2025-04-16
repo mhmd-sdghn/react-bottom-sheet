@@ -6,7 +6,10 @@ import {
 } from "@lib/constants.ts";
 import { SnapPoint, SnapPointConfigObj } from "@lib/types.ts";
 
-export const isSSR = () => typeof window === "undefined";
+export const isSSR = () =>
+  typeof window === "undefined" ||
+  !window.navigator ||
+  /ServerSideRendering|^Deno\//.test(window.navigator.userAgent);
 
 export const findDynamicHeightComponent = (
   children: ReactNode,
