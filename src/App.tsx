@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Sheet, SnapPoints } from "@lib/index";
+import { Sheet, SnapPointDynamicValue, SnapPoints } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints] = useState<SnapPoints>([0.5, { value: 1, scroll: true }]);
+  const [snapPoints] = useState<SnapPoints>([
+    SnapPointDynamicValue,
+    { value: 1, scroll: true },
+  ]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
@@ -35,6 +38,16 @@ function App() {
         onClose={onClose}
       >
         <Sheet.Container>
+          <Sheet.DynamicHeight>
+            <div
+              style={{
+                width: "100%",
+                height: activeSnapPointIndex === 0 ? 100 : 300,
+                background: "blue",
+                transition: "all 0.5s ease",
+              }}
+            ></div>
+          </Sheet.DynamicHeight>
           <div>
             <input placeholder="salam" style={{ fontSize: 18 }} />
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

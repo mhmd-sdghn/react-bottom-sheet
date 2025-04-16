@@ -1,4 +1,5 @@
 import { useState, RefObject, useLayoutEffect } from "react";
+import { isSSR } from "@lib/utils.ts";
 
 // Singleton ResizeObserver that is shared across the application
 class SharedResizeObserver {
@@ -76,7 +77,13 @@ const useWatchHeight = (
   wrapperRef?: RefObject<HTMLElement | null>,
   cb?: (height: number) => void,
 ): number => {
-  const [height, setHeight] = useState<number>(0);
+  const [height, setHeight] = useState<number>(
+    !isSSR()
+      ? wrapperRef?.current
+        ? wrapperRef.current.offsetHeight
+        : window.innerHeight
+      : 0,
+  );
 
   useLayoutEffect(() => {
     const element = wrapperRef?.current;
