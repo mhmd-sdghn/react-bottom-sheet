@@ -8,6 +8,7 @@ import {
   isSSR,
   validateSnapTo,
   getSnapValues,
+  getActiveSnapPoint,
 } from "../utils.ts";
 import SheetDynamicHeightContent from "./SheetDynamicHeightContent.tsx";
 import useEffectEvent from "@lib/hooks/useEffectEvent.ts";
@@ -37,8 +38,9 @@ const SheetContainer: FC<SheetContainerProps> = ({
   const DynamicHeightComponent = findDynamicHeightComponent(children);
 
   const snapValues = useMemo(
-    () => getSnapValues(state.snapPoints, viewHeight, !!DynamicHeightComponent),
-    [state.snapPoints, viewHeight, DynamicHeightComponent],
+    () =>
+      getSnapValues(viewHeight, state.dynamicHeightContent, state.snapPoints),
+    [state.snapPoints, viewHeight, state.dynamicHeightContent],
   );
   /**
    * When there is no snap point, we assume there is one snap point while the bottom sheet is open.
@@ -61,7 +63,11 @@ const SheetContainer: FC<SheetContainerProps> = ({
     state.dynamicHeightContent,
   );
   const { y, animate } = useAnim();
-  const activeSnapPoint = state.snapPoints[state.activeSnapPointIndex];
+  const activeSnapPoint = getActiveSnapPoint(
+    state.activeSnapPointIndex,
+    state.dynamicHeightContent,
+    state.snapPoints,
+  );
 
   const onDragStart = useEffectEvent(() => onDragStartEventHandler(ref));
   const onDrag = useEffectEvent((movementY: number) =>
@@ -81,7 +87,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       animate,
       {
         activeSnapPointIndex: state.activeSnapPointIndex,
-        snapPoints: state.snapPoints,
+        snapPoints: state.snapPoints || [activeSnapPoint],
         dynamicHeightContent: state.dynamicHeightContent,
         viewHeight,
         activeSnapValue,
@@ -156,7 +162,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       style={{
         ...style,
         y,
-        height: contentMode ? "fit-content" : "100%",
+        height: contentMode ? "fit-content" : wrapper ? "100%" : "100dvh",
         position: wrapper ? "absolute" : "fixed",
         top: 0,
         left: 0,

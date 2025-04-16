@@ -104,6 +104,17 @@ export const getActiveValue = (
   return snapValues[0] || 0;
 };
 
+export const getActiveSnapPoint = (
+  activeSnapPointIndex: number,
+  dynamicContentHeight: number,
+  snapPoints?: SnapPoint[] | null,
+) => {
+  if (Array.isArray(snapPoints) && snapPoints.length > 0)
+    return snapPoints[activeSnapPointIndex];
+  if (dynamicContentHeight) return dynamicContentHeight;
+  return 1; // full-height
+};
+
 const isDynamicSnapValue = (snap: SnapPoint) => {
   if (
     typeof snap === "object" &&
@@ -168,11 +179,19 @@ const sortSnapValues = (values: number[]): number[] =>
   });
 
 export const getSnapValues = (
-  snapPoints: SnapPoint[],
   viewHeight: number,
-  hasDynamicHeightComponent: boolean,
+  dynamicContentHeight: number,
+  snapPoints?: SnapPoint[] | null,
 ): number[] => {
-  if (!Array.isArray(snapPoints)) return [];
+  if (!Array.isArray(snapPoints)) {
+    const defaultSnapValue = getActiveSnapPoint(
+      0,
+      dynamicContentHeight,
+      snapPoints,
+    );
+
+    return [defaultSnapValue as number];
+  }
 
   let dynamicSnapIndex = -1;
   const processedValues: number[] = [];
@@ -191,7 +210,7 @@ export const getSnapValues = (
   });
 
   // Validate dynamic snap point requirements
-  validateDynamicSnapPosition(hasDynamicHeightComponent, dynamicSnapIndex);
+  validateDynamicSnapPosition(!!dynamicContentHeight, dynamicSnapIndex);
 
   // Sort zero (full-height) last
   return sortSnapValues(processedValues);
@@ -202,5 +221,6 @@ export const clamp = (num: number, min: number, max: number) => {
 };
 
 export const isSnapPointConfigObj = (
-  point: SnapPoint,
-): point is SnapPointConfigObj => typeof point === "object" && "value" in point;
+  point?: SnapPoint | null,
+): point is SnapPointConfigObj =>
+  typeof point === "object" && point !== null && "value" in point;
