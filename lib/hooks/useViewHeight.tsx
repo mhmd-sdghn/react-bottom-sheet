@@ -16,7 +16,11 @@ function useViewHeight(wrapper?: HTMLElement | null) {
 
     handler();
 
-    (wrapper || window).addEventListener("resize", handler);
+    if (wrapper) {
+      wrapper.addEventListener("resize", handler);
+    } else if (window) {
+      window.addEventListener("resize", handler);
+    }
 
     return () => {
       (wrapper || window).removeEventListener("resize", handler);
