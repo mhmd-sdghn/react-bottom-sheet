@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isSSR } from "../utils";
-import { useIsomorphicLayoutEffect } from "@react-spring/web";
 
 function useViewHeight(wrapper?: HTMLElement | null) {
   const [height, setHeight] = useState(
     !isSSR() ? (wrapper ? wrapper.offsetHeight : window.innerHeight) : 0,
   );
 
-  useIsomorphicLayoutEffect(() => {
+  useEffect(() => {
     if (isSSR()) return;
 
     function handler() {

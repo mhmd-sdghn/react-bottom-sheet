@@ -9,7 +9,10 @@ import { SnapPoint, SnapPointConfigObj } from "@lib/types.ts";
 export const isSSR = () =>
   typeof window === "undefined" ||
   !window.navigator ||
-  /ServerSideRendering|^Deno\//.test(window.navigator.userAgent);
+  /ServerSideRendering|^Deno\//.test(window.navigator.userAgent) ||
+  (typeof process !== "undefined" &&
+    process.versions &&
+    process.versions.node !== undefined);
 
 export const findDynamicHeightComponent = (
   children: ReactNode,
