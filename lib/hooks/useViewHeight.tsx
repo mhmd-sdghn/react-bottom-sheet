@@ -9,6 +9,9 @@ function useViewHeight(wrapper?: HTMLElement | null) {
   useEffect(() => {
     if (isSSR()) return;
 
+    console.warn("useViewHeight isSSR = false ");
+    console.warn("wrapper ", wrapper);
+
     function handler() {
       setHeight(wrapper ? wrapper.offsetHeight : window.innerHeight);
     }
