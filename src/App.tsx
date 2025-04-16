@@ -28,7 +28,6 @@ function App() {
         index 0
       </button>
       <Sheet
-        noInitialAnimation={true}
         isOpen={isOpen}
         snapPoints={snapPoints}
         activeSnapPointIndex={activeSnapPointIndex}
