@@ -59,12 +59,12 @@ const SheetContainer: FC<SheetContainerProps> = ({
     snapValues,
     viewHeight,
     contentMode,
-    state.activeSnapPointIndex,
+    state.activeSnapPointIndex || 0,
     state.dynamicHeightContent,
   );
   const { y, animate } = useAnim(viewHeight);
   const activeSnapPoint = getActiveSnapPoint(
-    state.activeSnapPointIndex,
+    state.activeSnapPointIndex || 0,
     state.dynamicHeightContent,
     state.snapPoints,
   );
@@ -86,7 +86,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       y,
       animate,
       {
-        activeSnapPointIndex: state.activeSnapPointIndex,
+        activeSnapPointIndex: state.activeSnapPointIndex || 0,
         snapPoints: state.snapPoints || [activeSnapPoint],
         dynamicHeightContent: state.dynamicHeightContent,
         viewHeight,
