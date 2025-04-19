@@ -19,8 +19,8 @@ import onDragEventHandler from "@lib/events/onDragEventHandler.ts";
 import onDragStartEventHandler from "@lib/events/onDragStartEventHandler.ts";
 import onDragEndEventHandler from "@lib/events/onDragEndEventHandler.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
-import { SheetContainerProps } from "@lib/types.ts";
 import useWatchHeight from "@lib/hooks/useWatchHeight.ts";
+import type { SheetContainerProps } from "@lib/types.ts";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
