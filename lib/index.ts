@@ -11,3 +11,4 @@ export const Sheet: SheetCompound = Object.assign(SheetBase, {
 // export types
 export type SnapPoints = SnapPointType[];
 export { SnapPointDynamicValue } from "./constants.ts";
+export { default as useSnapState } from "./hooks/useSnapState.ts";
