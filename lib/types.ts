@@ -110,3 +110,26 @@ export type SheetCompound = FC<SheetProps> & {
   Container: FC<SheetContainerProps>;
   DynamicHeight: FC<{ children: ReactNode }>;
 };
+
+export interface useSnapScrollProps {
+  animate: UseAnimAnimateFn;
+  state: {
+    bottomSheetRef: RefObject<HTMLDivElement | null>;
+    activeSnapValue: number;
+    activeSnapPoint: SnapPoint;
+    scrollLock: ReturnType<typeof useScrollLock>;
+    noInitialAnimation?: boolean;
+  };
+}
+
+export interface useMountProps {
+  animate: UseAnimAnimateFn;
+  onClose: () => void;
+  state: {
+    viewHeight: number;
+    wrapperRef: RefObject<HTMLDivElement | null>;
+    overlayColor?: string;
+    wrapper?: boolean | RefObject<HTMLDivElement | null>;
+    isOpen: boolean;
+  };
+}

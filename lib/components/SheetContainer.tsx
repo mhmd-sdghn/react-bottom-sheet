@@ -1,4 +1,4 @@
-import { animated, useIsomorphicLayoutEffect } from "@react-spring/web";
+import { animated } from "@react-spring/web";
 import { Children, FC, useMemo, useRef } from "react";
 import useSheetContext from "@lib/context/useSheetContext.tsx";
 import {
@@ -6,7 +6,6 @@ import {
   getActiveValue,
   isContentMode,
   isSSR,
-  validateSnapTo,
   getSnapValues,
   getActiveSnapPoint,
 } from "../utils.ts";
@@ -22,6 +21,8 @@ import useScrollLock from "@lib/hooks/useScrollLock.ts";
 import useWatchHeight from "@lib/hooks/useWatchHeight.ts";
 import type { SheetContainerProps } from "@lib/types.ts";
 import useWrapperRef from "@lib/hooks/useWrapperRef.ts";
+import useSnapScroll from "@lib/hooks/useSnapScroll.ts";
+import useMount from "@lib/hooks/useMount.ts";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
@@ -36,7 +37,6 @@ const SheetContainer: FC<SheetContainerProps> = ({
   const state = useSheetContext();
   const wrapperRef = useWrapperRef(wrapper);
   const viewHeight = useWatchHeight(wrapperRef);
-  const firstMount = useRef(true);
   const scrollY = useRef(0);
   const elementY = useRef(0);
   const scrollLock = useScrollLock(ref);
@@ -47,19 +47,13 @@ const SheetContainer: FC<SheetContainerProps> = ({
       getSnapValues(viewHeight, state.dynamicHeightContent, state.snapPoints),
     [state.snapPoints, viewHeight, state.dynamicHeightContent],
   );
-  /**
-   * When there is no snap point, we assume there is one snap point while the bottom sheet is open.
-   * This can either be a full-screen height bottom sheet or
-   * a snap point that fits the content height
-   * based on the user configuration.
-   * contentMode value is used
-   * to help with this.
-   */
+
   const contentMode = isContentMode(
     snapValues,
     viewHeight,
     state.dynamicHeightContent,
   );
+
   const activeSnapValue = getActiveValue(
     snapValues,
     viewHeight,
@@ -68,11 +62,35 @@ const SheetContainer: FC<SheetContainerProps> = ({
     state.dynamicHeightContent,
   );
   const { y, animate } = useAnim(viewHeight);
+
   const activeSnapPoint = getActiveSnapPoint(
     state.activeSnapPointIndex || 0,
     state.dynamicHeightContent,
     state.snapPoints,
   );
+
+  useSnapScroll({
+    animate,
+    state: {
+      activeSnapValue,
+      activeSnapPoint,
+      noInitialAnimation: state.noInitialAnimation,
+      scrollLock,
+      bottomSheetRef: ref,
+    },
+  });
+
+  useMount({
+    animate,
+    onClose: state.callbacks.current.onClose,
+    state: {
+      isOpen: state.isOpen,
+      overlayColor,
+      viewHeight,
+      wrapper,
+      wrapperRef,
+    },
+  });
 
   const onDragStart = useEffectEvent(() => onDragStartEventHandler(ref));
   const onDrag = useEffectEvent((movementY: number) =>
@@ -126,50 +144,6 @@ const SheetContainer: FC<SheetContainerProps> = ({
       },
     },
   );
-
-  useIsomorphicLayoutEffect(() => {
-    // handle scroll lock when active index changes from outside.
-    if (typeof activeSnapPoint === "object" && activeSnapPoint.scroll) {
-      scrollLock.current.deactivate();
-    } else {
-      ref.current?.scroll({ top: 0, behavior: "smooth" });
-      scrollLock.current.activate();
-    }
-
-    animate(
-      validateSnapTo({
-        snapTo: activeSnapValue,
-        sheetHeight: ref.current?.offsetHeight || 0,
-      }),
-      () => {
-        firstMount.current = false;
-      },
-      { jump: firstMount.current && state.noInitialAnimation },
-    );
-  }, [activeSnapValue, state.noInitialAnimation]);
-
-  useIsomorphicLayoutEffect(() => {
-    if (!state.isOpen) {
-      animate(viewHeight, () => {
-        state.callbacks.current.onClose();
-      });
-      if (wrapperRef.current && overlayColor) {
-        wrapperRef.current.style.backgroundColor = "";
-      }
-    } else {
-      if (overlayColor) {
-        if (!wrapper) {
-          console.warn(
-            "snap-bottom-sheet: Overlay will appear when you set value for wrapper prop",
-          );
-        } else if (wrapperRef.current) {
-          wrapperRef.current.style.transition =
-            "background-color 0.2s ease-in-out";
-          wrapperRef.current.style.backgroundColor = overlayColor;
-        }
-      }
-    }
-  }, [animate, viewHeight, state.callbacks, state.isOpen]);
 
   // to fix type issue of react-spring
   const AnimatedDiv = animated("div");
