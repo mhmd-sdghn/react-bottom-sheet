@@ -35,7 +35,10 @@ export interface SheetContainerProps {
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
-  wrapper?: RefObject<HTMLDivElement>;
+  wrapper?: boolean | RefObject<HTMLDivElement | null>;
+  wrapperPortalElement?: Element | DocumentFragment;
+  overlayColor?: string;
+  onOverlayClick?: () => void;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
