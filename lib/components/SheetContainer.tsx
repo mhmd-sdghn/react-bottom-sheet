@@ -32,6 +32,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
   wrapperPortalElement,
   overlayColor,
   onOverlayClick,
+  wrapperStyle = {},
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
@@ -181,9 +182,10 @@ const SheetContainer: FC<SheetContainerProps> = ({
   if (wrapperPortalElement) {
     return createPortal(
       <div
+        className={className}
         onClick={onOverlayClick}
         ref={wrapperRef}
-        style={{ position: "fixed", inset: 0 }}
+        style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
       >
         {Sheet}
       </div>,
@@ -192,9 +194,10 @@ const SheetContainer: FC<SheetContainerProps> = ({
   }
   return (
     <div
+      className={className}
       onClick={onOverlayClick}
       ref={wrapperRef}
-      style={{ position: "fixed", inset: 0 }}
+      style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
     >
       {Sheet}
     </div>

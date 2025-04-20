@@ -39,6 +39,8 @@ export interface SheetContainerProps {
   wrapperPortalElement?: Element | DocumentFragment;
   overlayColor?: string;
   onOverlayClick?: () => void;
+  wrapperStyle?: CSSProperties;
+  wrapperClassName?: string;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
