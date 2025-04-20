@@ -25,7 +25,7 @@ export interface SheetCallbacks {
 
 export interface SheetProps extends SheetCallbacks {
   isOpen: boolean;
-  snapPoints?: SnapPoint[] | null;
+  snapPoints: SnapPoint[];
   activeSnapPointIndex?: number;
   children?: ReactNode;
   noInitialAnimation?: boolean;
