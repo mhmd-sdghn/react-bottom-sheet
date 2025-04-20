@@ -21,16 +21,21 @@ import onDragEndEventHandler from "@lib/events/onDragEndEventHandler.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
 import useWatchHeight from "@lib/hooks/useWatchHeight.ts";
 import type { SheetContainerProps } from "@lib/types.ts";
+import useWrapperRef from "@lib/hooks/useWrapperRef.ts";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
   style,
   className,
   wrapper,
+  wrapperPortalElement,
+  overlayColor,
+  onOverlayClick,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
-  const viewHeight = useWatchHeight(wrapper);
+  const wrapperRef = useWrapperRef(wrapper);
+  const viewHeight = useWatchHeight(wrapperRef);
   const firstMount = useRef(true);
   const scrollY = useRef(0);
   const elementY = useRef(0);
@@ -144,11 +149,25 @@ const SheetContainer: FC<SheetContainerProps> = ({
   }, [activeSnapValue, state.noInitialAnimation]);
 
   useIsomorphicLayoutEffect(() => {
-    // handle mount and unmount animations
     if (!state.isOpen) {
       animate(viewHeight, () => {
         state.callbacks.current.onClose();
       });
+      if (wrapperRef.current && overlayColor) {
+        wrapperRef.current.style.backgroundColor = "";
+      }
+    } else {
+      if (overlayColor) {
+        if (!wrapper) {
+          console.warn(
+            "snap-bottom-sheet: Overlay will appear when you set value for wrapper prop",
+          );
+        } else if (wrapperRef.current) {
+          wrapperRef.current.style.transition =
+            "background-color 0.2s ease-in-out";
+          wrapperRef.current.style.backgroundColor = overlayColor;
+        }
+      }
     }
   }, [animate, viewHeight, state.callbacks, state.isOpen]);
 
@@ -159,6 +178,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       ref={ref}
       {...gestureProps()}
       className={className}
+      onClick={(e) => e.stopPropagation()}
       style={{
         ...style,
         y,
@@ -181,8 +201,30 @@ const SheetContainer: FC<SheetContainerProps> = ({
     </AnimatedDiv>
   );
 
-  if (isSSR() || wrapper) return Sheet;
-  return createPortal(Sheet, document.body);
+  if (isSSR()) return Sheet;
+
+  if (!wrapper) return createPortal(Sheet, document.body);
+  if (wrapperPortalElement) {
+    return createPortal(
+      <div
+        onClick={onOverlayClick}
+        ref={wrapperRef}
+        style={{ position: "fixed", inset: 0 }}
+      >
+        {Sheet}
+      </div>,
+      wrapperPortalElement,
+    );
+  }
+  return (
+    <div
+      onClick={onOverlayClick}
+      ref={wrapperRef}
+      style={{ position: "fixed", inset: 0 }}
+    >
+      {Sheet}
+    </div>
+  );
 };
 
 export default SheetContainer;
