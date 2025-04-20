@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Sheet, SnapPointDynamicValue, SnapPoints } from "@lib/index";
+import { Sheet, useSnapState } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [snapPoints] = useState<SnapPoints>([
-    SnapPointDynamicValue,
-    { value: 1, scroll: true },
-  ]);
+
+  const [snapPoints] = useSnapState([], { drag: { up: false } });
+  // const [snapPoints] = useState<SnapPoints>([
+  //   SnapPointDynamicValue,
+  //   { value: 1, scroll: true },
+  // ]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
 
   const onSnap = (index: number) => {
@@ -30,6 +32,7 @@ function App() {
       >
         index 0
       </button>
+
       <Sheet
         isOpen={isOpen}
         snapPoints={snapPoints}
@@ -37,56 +40,44 @@ function App() {
         onSnap={onSnap}
         onClose={onClose}
       >
-        <Sheet.Container>
+        <Sheet.Container
+          overlayColor="rgba(0, 0, 0, 0.5)"
+          wrapper
+          wrapperPortalElement={document.body}
+          onOverlayClick={onClose}
+        >
           <Sheet.DynamicHeight>
             <div
               style={{
-                width: "100%",
-                height: activeSnapPointIndex === 0 ? 100 : 300,
-                background: "blue",
-                transition: "all 0.5s ease",
+                background: "#fff",
+                padding: 16,
+                display: "flex",
+                flexDirection: "column",
               }}
-            ></div>
+            >
+              <h1>Login</h1>
+              <input
+                style={{
+                  padding: 12,
+                  borderRadius: 6,
+                  border: "1px solid #eeeeee",
+                }}
+                placeholder="phone number"
+              />
+              <button
+                style={{
+                  padding: 12,
+                  borderRadius: 6,
+                  border: "1px solid #eeeeee",
+                  marginTop: 16,
+                  fontWeight: "bold",
+                }}
+                onClick={onClose}
+              >
+                Login
+              </button>
+            </div>
           </Sheet.DynamicHeight>
-          <div>
-            <input placeholder="salam" style={{ fontSize: 18 }} />
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas
-            purus viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Egestas purus
-            viverra accumsan in nisl nisi. Arcu cursus vitae congue mauris
-            rhoncus aenean vel elit scelerisque. In egestas erat imperdiet sed
-            euismod nisi porta lorem mollis. Morbi tristique senectus et netus.
-            Mattis pellentesque id nibh tortor id aliquet lectus proin.
-          </div>
         </Sheet.Container>
       </Sheet>
     </>
