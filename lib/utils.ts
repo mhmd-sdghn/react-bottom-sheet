@@ -71,7 +71,7 @@ export function validateSnapTo({
 }) {
   if (snapTo < 0) {
     console.warn(
-      `Snap point is out of bounds. Sheet height is ${sheetHeight} but snap point is ${
+      `snap-bottom-sheet: Snap point is out of bounds. Sheet height is ${sheetHeight} but snap point is ${
         sheetHeight + Math.abs(snapTo)
       }.`,
     );
@@ -146,7 +146,7 @@ const calculatePixelValue = (
   const numericValue = typeof value === "string" ? parseFloat(value) : value;
 
   if (isNaN(numericValue)) {
-    console.warn("Invalid snap value:", value);
+    console.warn("snap-bottom-sheet: Invalid snap value:", value);
     return 0;
   }
 
@@ -165,12 +165,12 @@ const validateDynamicSnapPosition = (
 
   if (dynamicIndex === -1) {
     console.warn(
-      "[DynamicHeight] Required configuration missing: \n" +
+      "snap-bottom-sheet: DynamicHeight component Required configuration missing: \n" +
         "    When using DynamicHeight component, you must include 'SnapPointDynamicValue' \n" +
         "    as your FIRST snap point for proper layout calculations.",
     );
   } else if (dynamicIndex > 0) {
-    console.warn(`[DynamicHeight] Invalid configuration:
+    console.warn(`snap-bottom-sheet: Invalid DynamicHeight configuration:
     'SnapPointDynamicValue' must be the FIRST snap point in the array 
     to ensure correct dynamic content height calculations. Found at position ${dynamicIndex}.`);
   }
