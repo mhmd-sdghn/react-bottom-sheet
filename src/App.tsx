@@ -3,6 +3,7 @@ import { Sheet, useSnapState } from "@lib/index";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenTwo, setIsOpenTwo] = useState(false);
 
   const [snapPoints] = useSnapState([], { drag: { up: false } });
   // const [snapPoints] = useState<SnapPoints>([
@@ -10,15 +11,26 @@ function App() {
   //   { value: 1, scroll: true },
   // ]);
   const [activeSnapPointIndex, setActiveSnapPointIndex] = useState(0);
+  const [activeSnapPointIndexTwo, setActiveSnapPointIndexTwo] = useState(0);
 
   const onSnap = (index: number) => {
     // index is -1 if onClose is called
     if (index !== -1) setActiveSnapPointIndex(index);
   };
 
+  const onSnapTwo = (index: number) => {
+    // index is -1 if onClose is called
+    if (index !== -1) setActiveSnapPointIndexTwo(index);
+  };
+
   const onClose = () => {
     setActiveSnapPointIndex(0);
     setIsOpen(false);
+  };
+
+  const onCloseTwo = () => {
+    setActiveSnapPointIndexTwo(0);
+    setIsOpenTwo(false);
   };
 
   return (
@@ -72,10 +84,57 @@ function App() {
                   marginTop: 16,
                   fontWeight: "bold",
                 }}
-                onClick={onClose}
+                onClick={() => setIsOpenTwo(true)}
               >
                 Login
               </button>
+
+              <Sheet
+                isOpen={isOpenTwo}
+                snapPoints={snapPoints}
+                activeSnapPointIndex={activeSnapPointIndexTwo}
+                onSnap={onSnapTwo}
+                onClose={onCloseTwo}
+              >
+                <Sheet.Container
+                  overlayColor="rgba(0, 0, 0, 0.5)"
+                  wrapper
+                  wrapperPortalElement={document.body}
+                  onOverlayClick={onCloseTwo}
+                >
+                  <Sheet.DynamicHeight>
+                    <div
+                      style={{
+                        background: "#fff",
+                        padding: 16,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <input
+                        style={{
+                          padding: 12,
+                          borderRadius: 6,
+                          border: "1px solid #eeeeee",
+                        }}
+                        placeholder="Verify code sent in sms"
+                      />
+                      <button
+                        style={{
+                          padding: 12,
+                          borderRadius: 6,
+                          border: "1px solid #eeeeee",
+                          marginTop: 16,
+                          fontWeight: "bold",
+                        }}
+                        onClick={onClose}
+                      >
+                        Login
+                      </button>
+                    </div>
+                  </Sheet.DynamicHeight>
+                </Sheet.Container>
+              </Sheet>
             </div>
           </Sheet.DynamicHeight>
         </Sheet.Container>

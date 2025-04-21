@@ -13,7 +13,11 @@ const useMount = ({ animate, onClose, state }: useMountProps) => {
         onClose();
       });
       if (wrapperRef.current && overlayColor) {
-        wrapperRef.current.style.backgroundColor = "";
+        const overlay = wrapperRef.current.querySelector(
+          "#snap-bottom-sheet-wrapper-overlay",
+        ) as HTMLElement;
+
+        if (overlay) overlay.style.backgroundColor = "";
       }
     } else {
       if (overlayColor) {
@@ -22,9 +26,11 @@ const useMount = ({ animate, onClose, state }: useMountProps) => {
             "snap-bottom-sheet: Overlay will appear when you set value for wrapper prop",
           );
         } else if (wrapperRef.current) {
-          wrapperRef.current.style.transition =
-            "background-color 0.2s ease-in-out";
-          wrapperRef.current.style.backgroundColor = overlayColor;
+          const overlay = wrapperRef.current.querySelector(
+            "#snap-bottom-sheet-wrapper-overlay",
+          ) as HTMLElement;
+
+          if (overlay) overlay.style.backgroundColor = overlayColor;
         }
       }
     }

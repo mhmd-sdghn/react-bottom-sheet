@@ -41,6 +41,8 @@ export interface SheetContainerProps {
   onOverlayClick?: () => void;
   wrapperStyle?: CSSProperties;
   wrapperClassName?: string;
+  overlayClassName?: string;
+  overlayStyle?: CSSProperties;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {

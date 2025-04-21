@@ -166,8 +166,13 @@ const handleCloseBehavior = (
 
   if (isDragDownDisabled(nextSnap)) return;
 
-  if (wrapperRef && wrapperRef.current)
-    wrapperRef.current.style.backgroundColor = "transparent";
+  if (wrapperRef && wrapperRef.current) {
+    const overlay = wrapperRef.current.querySelector(
+      "#snap-bottom-sheet-wrapper-overlay",
+    ) as HTMLElement;
+
+    if (overlay) overlay.style.backgroundColor = "";
+  }
 
   animate(viewHeight, () => {
     if (typeof callbacks.current.onSnap === "function") {

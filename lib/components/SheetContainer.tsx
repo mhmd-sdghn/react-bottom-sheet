@@ -34,6 +34,8 @@ const SheetContainer: FC<SheetContainerProps> = ({
   onOverlayClick,
   wrapperStyle = {},
   wrapperClassName,
+  overlayStyle,
+  overlayClassName,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const state = useSheetContext();
@@ -63,6 +65,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
     state.activeSnapPointIndex || 0,
     state.dynamicHeightContent,
   );
+
   const { y, animate } = useAnim(viewHeight);
 
   const activeSnapPoint = getActiveSnapPoint(
@@ -126,11 +129,22 @@ const SheetContainer: FC<SheetContainerProps> = ({
       state.callbacks,
     ),
   );
-
   const gestureProps = useGesture(
     {
-      onDragStart: () => {
+      onDragStart: ({ event, cancel }) => {
+        // handle the situation when another bottom sheet exists as children
+        event.stopPropagation();
+        const target = event.target as HTMLDivElement;
+        if (
+          target &&
+          target.id &&
+          target.id === "snap-bottom-sheet-wrapper-overlay"
+        ) {
+          cancel();
+        }
+
         elementY.current = y.get();
+
         onDragStart();
       },
       onDrag: ({ movement, last }) => (!last ? onDrag(movement[1]) : null),
@@ -189,6 +203,16 @@ const SheetContainer: FC<SheetContainerProps> = ({
         ref={wrapperRef}
         style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
       >
+        <div
+          id="snap-bottom-sheet-wrapper-overlay"
+          className={overlayClassName}
+          style={{
+            ...overlayStyle,
+            position: "absolute",
+            inset: 0,
+            transition: "background-color 0.2s ease-in-out",
+          }}
+        ></div>
         {Sheet}
       </div>,
       wrapperPortalElement,
@@ -201,6 +225,16 @@ const SheetContainer: FC<SheetContainerProps> = ({
       ref={wrapperRef}
       style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
     >
+      <div
+        id="snap-bottom-sheet-wrapper-overlay"
+        className={overlayClassName}
+        style={{
+          ...overlayStyle,
+          position: "absolute",
+          inset: 0,
+          transition: "background-color 0.2s ease-in-out",
+        }}
+      ></div>
       {Sheet}
     </div>
   );
