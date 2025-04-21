@@ -15,6 +15,7 @@ const onDragEndEventHandler = (
   ref: RefObject<HTMLDivElement | null>,
   springY: SpringValue<number>,
   animate: UseAnimAnimateFn,
+  wrapperRef: RefObject<HTMLDivElement | null>,
   state: DragEndEventHandlerFn,
   callbacks: RefObject<SheetCallbacks>,
 ) => {
@@ -57,6 +58,7 @@ const onDragEndEventHandler = (
       offsetY,
       callbacks,
       animate,
+      wrapperRef,
       activeSnapValue,
       state,
     });
@@ -100,6 +102,7 @@ const handleSnapBehavior = ({
   callbacks,
   animate,
   activeSnapValue,
+  wrapperRef,
   state,
 }: SnapBehaviorParams) => {
   const shouldClose = determineShouldClose(
@@ -115,6 +118,7 @@ const handleSnapBehavior = ({
       snapPoints,
       viewHeight,
       animate,
+      wrapperRef,
       callbacks,
     );
   } else if (
@@ -155,11 +159,15 @@ const handleCloseBehavior = (
   snapPoints: SnapPoint[],
   viewHeight: number,
   animate: UseAnimAnimateFn,
+  wrapperRef: RefObject<HTMLDivElement | null>,
   callbacks: RefObject<SheetCallbacks>,
 ) => {
   const nextSnap = snapPoints[targetSnapIndex];
 
   if (isDragDownDisabled(nextSnap)) return;
+
+  if (wrapperRef && wrapperRef.current)
+    wrapperRef.current.style.backgroundColor = "transparent";
 
   animate(viewHeight, () => {
     if (typeof callbacks.current.onSnap === "function") {

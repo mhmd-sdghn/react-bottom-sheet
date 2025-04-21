@@ -110,6 +110,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
       ref,
       y,
       animate,
+      wrapperRef,
       {
         activeSnapPointIndex: state.activeSnapPointIndex || 0,
         snapPoints: state.snapPoints || [activeSnapPoint],
