@@ -106,6 +106,7 @@ export interface SnapBehaviorParams {
   animate: UseAnimAnimateFn;
   activeSnapValue: number;
   state: DragEndEventHandlerFn;
+  wrapperRef: RefObject<HTMLDivElement | null>;
 }
 
 export type SheetCompound = FC<SheetProps> & {
