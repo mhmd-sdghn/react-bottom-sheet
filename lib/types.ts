@@ -31,18 +31,21 @@ export interface SheetProps extends SheetCallbacks {
   noInitialAnimation?: boolean;
 }
 
-export interface SheetContainerProps {
+export interface SheetOverlayProps {
+  overlayColor?: string;
+  onOverlayClick?: () => void;
+  overlayClassName?: string;
+  overlayStyle?: CSSProperties;
+}
+
+export interface SheetContainerProps extends SheetOverlayProps {
   children: ReactNode;
   style?: CSSProperties;
   className?: string;
   wrapper?: boolean | RefObject<HTMLDivElement | null>;
   wrapperPortalElement?: Element | DocumentFragment;
-  overlayColor?: string;
-  onOverlayClick?: () => void;
   wrapperStyle?: CSSProperties;
   wrapperClassName?: string;
-  overlayClassName?: string;
-  overlayStyle?: CSSProperties;
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {

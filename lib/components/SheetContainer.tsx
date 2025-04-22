@@ -23,6 +23,7 @@ import type { SheetContainerProps } from "@lib/types.ts";
 import useWrapperRef from "@lib/hooks/useWrapperRef.ts";
 import useSnapScroll from "@lib/hooks/useSnapScroll.ts";
 import useMount from "@lib/hooks/useMount.ts";
+import SheetOverlay from "@lib/components/SheetOverlay.tsx";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
@@ -193,26 +194,20 @@ const SheetContainer: FC<SheetContainerProps> = ({
   );
 
   if (isSSR()) return Sheet;
-
   if (!wrapper) return createPortal(Sheet, document.body);
   if (wrapperPortalElement) {
     return createPortal(
       <div
         className={wrapperClassName}
-        onClick={onOverlayClick}
         ref={wrapperRef}
-        style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
+        style={{ position: "fixed", inset: 0, zIndex: 1, ...wrapperStyle }}
       >
-        <div
-          id="snap-bottom-sheet-wrapper-overlay"
-          className={overlayClassName}
-          style={{
-            ...overlayStyle,
-            position: "absolute",
-            inset: 0,
-            transition: "background-color 0.2s ease-in-out",
-          }}
-        ></div>
+        <SheetOverlay
+          overlayColor={overlayColor}
+          overlayClassName={overlayClassName}
+          onOverlayClick={onOverlayClick}
+          overlayStyle={overlayStyle}
+        />
         {Sheet}
       </div>,
       wrapperPortalElement,
@@ -221,20 +216,15 @@ const SheetContainer: FC<SheetContainerProps> = ({
   return (
     <div
       className={wrapperClassName}
-      onClick={onOverlayClick}
       ref={wrapperRef}
-      style={{ position: "fixed", inset: 0, zIndex: 2, ...wrapperStyle }}
+      style={{ position: "fixed", inset: 0, zIndex: 1, ...wrapperStyle }}
     >
-      <div
-        id="snap-bottom-sheet-wrapper-overlay"
-        className={overlayClassName}
-        style={{
-          ...overlayStyle,
-          position: "absolute",
-          inset: 0,
-          transition: "background-color 0.2s ease-in-out",
-        }}
-      ></div>
+      <SheetOverlay
+        overlayColor={overlayColor}
+        overlayClassName={overlayClassName}
+        onOverlayClick={onOverlayClick}
+        overlayStyle={overlayStyle}
+      />
       {Sheet}
     </div>
   );
