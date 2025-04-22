@@ -13,10 +13,10 @@ const SheetOverlay: FC<SheetOverlayProps> = ({
       onClick={onOverlayClick}
       className={overlayClassName}
       style={{
-        ...overlayStyle,
         position: "absolute",
         inset: 0,
         transition: "background-color 0.2s ease-in-out",
+        ...overlayStyle,
       }}
     />
   ) : null;
