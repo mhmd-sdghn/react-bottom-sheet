@@ -31,6 +31,7 @@ function App() {
   const onCloseTwo = () => {
     setActiveSnapPointIndexTwo(0);
     setIsOpenTwo(false);
+    onClose();
   };
 
   return (
@@ -127,9 +128,9 @@ function App() {
                           marginTop: 16,
                           fontWeight: "bold",
                         }}
-                        onClick={onClose}
+                        onClick={onCloseTwo}
                       >
-                        Login
+                        Verify
                       </button>
                     </div>
                   </Sheet.DynamicHeight>
