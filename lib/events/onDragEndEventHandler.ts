@@ -2,15 +2,22 @@ import { RefObject } from "react";
 import { SpringValue } from "@react-spring/web";
 import {
   DragEndEventHandlerFn,
-  ScrollLock,
   SheetCallbacks,
-  SnapBehaviorParams,
-  UseAnimAnimateFn,
   SnapPoint,
+  UseAnimAnimateFn,
 } from "@lib/types.ts";
 import { clamp, getClosestIndex, isSnapPointConfigObj } from "@lib/utils.ts";
 import { DragOffsetThreshold } from "@lib/constants.ts";
 
+/**
+ * Handles the drag end event for bottom sheet components with snap points
+ * @param ref Reference to the draggable element
+ * @param springY Spring animation value for vertical position
+ * @param animate Function to animate to a specific position
+ * @param wrapperRef Reference to the wrapper element
+ * @param state Current state of the drag event
+ * @param callbacks Callbacks to trigger on various events
+ */
 const onDragEndEventHandler = (
   ref: RefObject<HTMLDivElement | null>,
   springY: SpringValue<number>,
@@ -18,7 +25,7 @@ const onDragEndEventHandler = (
   wrapperRef: RefObject<HTMLDivElement | null>,
   state: DragEndEventHandlerFn,
   callbacks: RefObject<SheetCallbacks>,
-) => {
+): void => {
   const {
     offsetY,
     contentMode,
@@ -33,210 +40,113 @@ const onDragEndEventHandler = (
   } = state;
 
   const currentPosition = springY.get();
-  const shouldMaintainContentHeight = contentMode && offsetY <= 0;
-  const isAtTop = currentPosition <= 0;
 
-  if (isAtTop) {
+  // Special case 1: Sheet is at the top
+  // when the sheet is at the top, user most likely is scrolling the content and drag is disabled,
+  // so for any reason the sheet drag moved the sheet, this code resets it's position
+  if (currentPosition <= 0) {
     springY.set(0);
-  } else if (shouldMaintainContentHeight) {
-    springY.set(viewHeight - dynamicHeightContent);
-  } else {
-    const targetSnapIndex = calculateTargetSnapIndex(
-      contentMode,
-      snapValues,
-      currentPosition,
-      offsetY,
-      currentSnapIndex,
-    );
-
-    handleSnapBehavior({
-      targetSnapIndex,
-      contentMode,
-      snapPoints,
-      viewHeight,
-      currentSnapIndex,
-      offsetY,
-      callbacks,
-      animate,
-      wrapperRef,
-      activeSnapValue,
-      state,
-    });
-
-    updateScrollLock(
-      ref,
-      scrollLock,
-      scrollY,
-      state.snapPoints[targetSnapIndex ?? currentSnapIndex],
-    );
+    return;
   }
-};
 
-// Helper functions
-const calculateTargetSnapIndex = (
-  contentMode: boolean,
-  snapValues: number[],
-  currentPosition: number,
-  offsetY: number,
-  currentSnapIndex: number,
-) => {
-  if (contentMode) return 0;
+  // Special case 2: Content mode and user is dragging up
+  // in this case we should not let the sheet height gets bigger than it's content
+  if (contentMode && offsetY <= 0) {
+    springY.set(viewHeight - dynamicHeightContent);
+    return;
+  }
 
-  const closestIndex = getClosestIndex(
-    snapValues,
-    currentPosition,
-    offsetY,
-    currentSnapIndex,
-  );
+  // Normal behavior: Handle snap points
+  // Calculate which snap point to move to
+  const targetSnapIndex = contentMode
+    ? 0
+    : clamp(
+        getClosestIndex(snapValues, currentPosition, offsetY, currentSnapIndex),
+        0,
+        snapValues.length - 1,
+      );
 
-  return clamp(closestIndex, 0, snapValues.length - 1);
-};
-
-const handleSnapBehavior = ({
-  targetSnapIndex,
-  contentMode,
-  snapPoints,
-  viewHeight,
-  currentSnapIndex,
-  offsetY,
-  callbacks,
-  animate,
-  activeSnapValue,
-  wrapperRef,
-  state,
-}: SnapBehaviorParams) => {
-  const shouldClose = determineShouldClose(
-    contentMode,
-    targetSnapIndex,
-    currentSnapIndex,
-    offsetY,
-  );
+  const shouldClose =
+    (contentMode && offsetY > DragOffsetThreshold) ||
+    (!contentMode &&
+      targetSnapIndex === 0 &&
+      currentSnapIndex === 0 &&
+      offsetY > DragOffsetThreshold);
 
   if (shouldClose) {
-    handleCloseBehavior(
-      targetSnapIndex,
-      snapPoints,
-      viewHeight,
-      animate,
-      wrapperRef,
-      callbacks,
-    );
-  } else if (
-    shouldTriggerSnapCallback(
-      snapPoints,
-      viewHeight,
-      state.dynamicHeightContent,
-    )
-  ) {
-    triggerSnapCallback(
-      targetSnapIndex,
-      currentSnapIndex,
-      activeSnapValue,
-      animate,
-      callbacks,
-      state,
-    );
-  }
-};
+    // Handle sheet closing logic
+    const nextSnap = snapPoints[targetSnapIndex];
 
-const determineShouldClose = (
-  contentMode: boolean,
-  targetSnapIndex: number,
-  currentSnapIndex: number,
-  offsetY: number,
-) => {
-  if (contentMode) return offsetY > DragOffsetThreshold;
-
-  return (
-    targetSnapIndex === 0 &&
-    currentSnapIndex === 0 &&
-    offsetY > DragOffsetThreshold
-  );
-};
-
-const handleCloseBehavior = (
-  targetSnapIndex: number,
-  snapPoints: SnapPoint[],
-  viewHeight: number,
-  animate: UseAnimAnimateFn,
-  wrapperRef: RefObject<HTMLDivElement | null>,
-  callbacks: RefObject<SheetCallbacks>,
-) => {
-  const nextSnap = snapPoints[targetSnapIndex];
-
-  if (isDragDownDisabled(nextSnap)) return;
-
-  if (wrapperRef && wrapperRef.current) {
-    const overlay = wrapperRef.current.querySelector(
-      "#snap-bottom-sheet-wrapper-overlay",
-    ) as HTMLElement;
-
-    if (overlay) overlay.style.backgroundColor = "";
-  }
-
-  animate(viewHeight, () => {
-    if (typeof callbacks.current.onSnap === "function") {
-      callbacks.current.onSnap(-1, null);
+    // Check if dragging down is disabled for this snap point
+    if (isDragDownDisabled(nextSnap)) {
+      return;
     }
-    callbacks.current.onClose();
-  });
-};
 
-const shouldTriggerSnapCallback = (
-  snapPoints: SnapPoint[],
-  viewHeight: number,
-  dynamicHeight: number,
-) => {
-  const hasCustomSnapPoints =
-    Array.isArray(snapPoints) && snapPoints.length > 0;
-  const onlyDynamicSnap =
-    snapPoints.length === 1 && snapPoints[0] === viewHeight - dynamicHeight;
+    // Reset an overlay background if applicable
+    if (wrapperRef?.current) {
+      const overlay = wrapperRef.current.querySelector(
+        "#snap-bottom-sheet-wrapper-overlay",
+      ) as HTMLElement;
 
-  return hasCustomSnapPoints && !onlyDynamicSnap;
-};
+      if (overlay) {
+        overlay.style.backgroundColor = "";
+      }
+    }
 
-const triggerSnapCallback = (
-  targetIndex: number,
-  currentIndex: number,
-  activeValue: number,
-  animate: UseAnimAnimateFn,
-  callbacks: RefObject<SheetCallbacks>,
-  state: DragEndEventHandlerFn,
-) => {
-  if (currentIndex === targetIndex) {
-    animate(activeValue);
-  }
-
-  if (callbacks.current.onSnap) {
-    callbacks.current.onSnap(targetIndex, state.snapPoints[targetIndex]);
-  }
-};
-
-const updateScrollLock = (
-  ref: RefObject<HTMLDivElement | null>,
-  scrollLock: ScrollLock,
-  scrollY: RefObject<number>,
-  snapPoint: SnapPoint,
-) => {
-  if (!ref.current) return;
-
-  const shouldEnableScroll =
-    isSnapPointConfigObj(snapPoint) && snapPoint.scroll;
-  const needsScrollReset = scrollY.current !== 0;
-
-  if (shouldEnableScroll) {
-    scrollLock.current.deactivate();
+    // Animate to fully closed position and trigger callbacks
+    animate(viewHeight, () => {
+      if (typeof callbacks.current.onSnap === "function") {
+        callbacks.current.onSnap(-1, null);
+      }
+      callbacks.current.onClose();
+    });
   } else {
-    if (needsScrollReset) {
-      ref.current.scroll({ top: 0, behavior: "smooth" });
+    // Handle snap behavior
+    const hasCustomSnapPoints =
+      Array.isArray(snapPoints) && snapPoints.length > 0;
+    const onlyDynamicSnap =
+      snapPoints.length === 1 &&
+      snapPoints[0] === viewHeight - dynamicHeightContent;
+
+    if (hasCustomSnapPoints && !onlyDynamicSnap) {
+      // Animate to current position if target is the same
+      if (currentSnapIndex === targetSnapIndex) {
+        animate(activeSnapValue);
+      }
+
+      // Trigger snap callback
+      if (callbacks.current.onSnap) {
+        callbacks.current.onSnap(targetSnapIndex, snapPoints[targetSnapIndex]);
+      }
     }
-    scrollLock.current.activate();
+  }
+
+  // Handle lock or unlock scroll based on the final snap point configuration
+  if (ref.current) {
+    const snapPoint = snapPoints[targetSnapIndex ?? currentSnapIndex];
+
+    const shouldEnableScroll =
+      isSnapPointConfigObj(snapPoint) && snapPoint.scroll;
+    const needsScrollReset = scrollY.current !== 0;
+
+    if (shouldEnableScroll) {
+      scrollLock.current.deactivate();
+    } else {
+      if (needsScrollReset) {
+        ref.current.scroll({ top: 0, behavior: "smooth" });
+      }
+      scrollLock.current.activate();
+    }
   }
 };
 
-const isDragDownDisabled = (snapPoint?: SnapPoint) => {
+/**
+ * Determines if dragging down is disabled for a given snap point
+ */
+const isDragDownDisabled = (snapPoint?: SnapPoint): boolean => {
   if (!snapPoint) return false;
   if (typeof snapPoint === "number") return false;
+
   if (isSnapPointConfigObj(snapPoint)) {
     const dragConfig = snapPoint.drag;
     if (typeof dragConfig === "boolean") return !dragConfig;
