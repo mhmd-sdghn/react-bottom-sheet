@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useRef, useState } from "react";
+import { FC, useLayoutEffect, useState } from "react";
 import type { SheetPropsContext, SheetProps } from "@lib/types.ts";
 import { SheetContextProvider } from "@lib/context/context.tsx";
 
@@ -17,10 +17,10 @@ const Sheet: FC<SheetProps> = ({
     setPresent(false);
   };
 
-  const callbacks = useRef({
+  const callbacks = {
     onSnap,
     onClose: handleOnClose,
-  });
+  };
 
   const context: SheetPropsContext = {
     callbacks,

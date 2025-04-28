@@ -1,8 +1,6 @@
 import { RefObject } from "react";
-import { SpringValue } from "@react-spring/web";
 import {
   DragEndEventHandlerFn,
-  SheetCallbacks,
   SnapPoint,
   UseAnimAnimateFn,
 } from "@lib/types.ts";
@@ -12,19 +10,15 @@ import { DragOffsetThreshold } from "@lib/constants.ts";
 /**
  * Handles the drag end event for bottom sheet components with snap points
  * @param ref Reference to the draggable element
- * @param springY Spring animation value for vertical position
  * @param animate Function to animate to a specific position
  * @param wrapperRef Reference to the wrapper element
- * @param state Current state of the drag event
- * @param callbacks Callbacks to trigger on various events
+ * @param state
  */
 const onDragEndEventHandler = (
   ref: RefObject<HTMLDivElement | null>,
-  springY: SpringValue<number>,
   animate: UseAnimAnimateFn,
   wrapperRef: RefObject<HTMLDivElement | null>,
   state: DragEndEventHandlerFn,
-  callbacks: RefObject<SheetCallbacks>,
 ): void => {
   const {
     offsetY,
@@ -32,27 +26,29 @@ const onDragEndEventHandler = (
     viewHeight,
     dynamicHeightContent,
     snapValues,
-    activeSnapPointIndex: currentSnapIndex,
+    activeSnapPointIndex,
     snapPoints,
     activeSnapValue,
     scrollLock,
     scrollY,
+    y,
+    callbacks,
   } = state;
 
-  const currentPosition = springY.get();
+  const currentPosition = y.get();
 
   // Special case 1: Sheet is at the top
   // when the sheet is at the top, user most likely is scrolling the content and drag is disabled,
   // so for any reason the sheet drag moved the sheet, this code resets it's position
   if (currentPosition <= 0) {
-    springY.set(0);
+    y.set(0);
     return;
   }
 
   // Special case 2: Content mode and user is dragging up
   // in this case we should not let the sheet height gets bigger than it's content
   if (contentMode && offsetY <= 0) {
-    springY.set(viewHeight - dynamicHeightContent);
+    y.set(viewHeight - dynamicHeightContent);
     return;
   }
 
@@ -61,7 +57,12 @@ const onDragEndEventHandler = (
   const targetSnapIndex = contentMode
     ? 0
     : clamp(
-        getClosestIndex(snapValues, currentPosition, offsetY, currentSnapIndex),
+        getClosestIndex(
+          snapValues,
+          currentPosition,
+          offsetY,
+          activeSnapPointIndex || 0,
+        ),
         0,
         snapValues.length - 1,
       );
@@ -70,7 +71,7 @@ const onDragEndEventHandler = (
     (contentMode && offsetY > DragOffsetThreshold) ||
     (!contentMode &&
       targetSnapIndex === 0 &&
-      currentSnapIndex === 0 &&
+      activeSnapPointIndex === 0 &&
       offsetY > DragOffsetThreshold);
 
   if (shouldClose) {
@@ -95,10 +96,10 @@ const onDragEndEventHandler = (
 
     // Animate to fully closed position and trigger callbacks
     animate(viewHeight, () => {
-      if (typeof callbacks.current.onSnap === "function") {
-        callbacks.current.onSnap(-1, null);
+      if (typeof callbacks.onSnap === "function") {
+        callbacks.onSnap(-1, null);
       }
-      callbacks.current.onClose();
+      callbacks.onClose();
     });
   } else {
     // Handle snap behavior
@@ -110,20 +111,20 @@ const onDragEndEventHandler = (
 
     if (hasCustomSnapPoints && !onlyDynamicSnap) {
       // Animate to current position if target is the same
-      if (currentSnapIndex === targetSnapIndex) {
+      if (activeSnapPointIndex === targetSnapIndex) {
         animate(activeSnapValue);
       }
 
       // Trigger snap callback
-      if (callbacks.current.onSnap) {
-        callbacks.current.onSnap(targetSnapIndex, snapPoints[targetSnapIndex]);
+      if (callbacks.onSnap) {
+        callbacks.onSnap(targetSnapIndex, snapPoints[targetSnapIndex]);
       }
     }
   }
 
   // Handle lock or unlock scroll based on the final snap point configuration
   if (ref.current) {
-    const snapPoint = snapPoints[targetSnapIndex ?? currentSnapIndex];
+    const snapPoint = snapPoints[targetSnapIndex ?? activeSnapPointIndex];
 
     const shouldEnableScroll =
       isSnapPointConfigObj(snapPoint) && snapPoint.scroll;

@@ -88,7 +88,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
 
   useMount({
     animate,
-    onClose: state.callbacks.current.onClose,
+    onClose: state.callbacks.onClose,
     state: {
       isOpen: state.isOpen,
       overlayColor,
@@ -110,25 +110,17 @@ const SheetContainer: FC<SheetContainerProps> = ({
     }),
   );
   const onDragEnd = useEffectEvent((offsetY: number) =>
-    onDragEndEventHandler(
-      ref,
+    onDragEndEventHandler(ref, animate, wrapperRef, {
       y,
-      animate,
-      wrapperRef,
-      {
-        activeSnapPointIndex: state.activeSnapPointIndex || 0,
-        snapPoints: state.snapPoints || [activeSnapPoint],
-        dynamicHeightContent: state.dynamicHeightContent,
-        viewHeight,
-        activeSnapValue,
-        contentMode,
-        offsetY,
-        snapValues,
-        scrollY,
-        scrollLock,
-      },
-      state.callbacks,
-    ),
+      viewHeight,
+      activeSnapValue,
+      contentMode,
+      offsetY,
+      snapValues,
+      scrollY,
+      scrollLock,
+      ...state,
+    }),
   );
   const gestureProps = useGesture(
     {

@@ -1,6 +1,7 @@
 import { RefObject, ReactNode, FC, CSSProperties } from "react";
 import { SnapPointDynamicValue } from "@lib/constants.ts";
 import useScrollLock from "@lib/hooks/useScrollLock.ts";
+import { SpringValue } from "@react-spring/web";
 
 export interface SnapPointConfigObj {
   value: number | typeof SnapPointDynamicValue;
@@ -49,7 +50,7 @@ export interface SheetContainerProps extends SheetOverlayProps {
 }
 
 export type SheetPropsContext = Omit<SheetProps, keyof SheetCallbacks> & {
-  callbacks: RefObject<SheetCallbacks>;
+  callbacks: SheetCallbacks;
 };
 
 export type SheetContextProviderProps = {
@@ -78,17 +79,15 @@ export type UseAnimAnimateFn = (
 
 export type ScrollLock = ReturnType<typeof useScrollLock>;
 
-export interface DragEndEventHandlerFn {
-  offsetY: number;
-  contentMode: boolean;
+export interface DragEndEventHandlerFn extends SheetContextProviderValues {
+  y: SpringValue;
   viewHeight: number;
-  dynamicHeightContent: number;
-  snapValues: number[];
-  activeSnapPointIndex: number;
-  snapPoints: SnapPoint[];
   activeSnapValue: number;
-  scrollLock: ScrollLock;
+  contentMode: boolean;
+  offsetY: number;
+  snapValues: number[];
   scrollY: RefObject<number>;
+  scrollLock: ScrollLock;
 }
 
 export interface OnDragEventHandlerState {
