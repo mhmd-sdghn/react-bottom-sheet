@@ -99,20 +99,6 @@ export interface OnDragEventHandlerState {
   scrollLock: ReturnType<typeof useScrollLock>;
 }
 
-export interface SnapBehaviorParams {
-  targetSnapIndex: number;
-  contentMode: boolean;
-  snapPoints: SnapPoint[];
-  viewHeight: number;
-  currentSnapIndex: number;
-  offsetY: number;
-  callbacks: RefObject<SheetCallbacks>;
-  animate: UseAnimAnimateFn;
-  activeSnapValue: number;
-  state: DragEndEventHandlerFn;
-  wrapperRef: RefObject<HTMLDivElement | null>;
-}
-
 export type SheetCompound = FC<SheetProps> & {
   Container: FC<SheetContainerProps>;
   DynamicHeight: FC<{ children: ReactNode }>;
