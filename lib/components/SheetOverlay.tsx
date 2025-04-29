@@ -1,5 +1,6 @@
 import { FC } from "react";
 import type { SheetOverlayProps } from "@lib/types.ts";
+import { OverlayElementId } from "@lib/constants.ts";
 
 const SheetOverlay: FC<SheetOverlayProps> = ({
   overlayClassName,
@@ -9,7 +10,7 @@ const SheetOverlay: FC<SheetOverlayProps> = ({
 }) => {
   return overlayColor ? (
     <div
-      id="snap-bottom-sheet-wrapper-overlay"
+      id={OverlayElementId}
       onClick={onOverlayClick}
       className={overlayClassName}
       style={{

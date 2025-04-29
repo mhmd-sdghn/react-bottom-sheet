@@ -24,6 +24,7 @@ import useWrapperRef from "@lib/hooks/useWrapperRef.ts";
 import useSnapScroll from "@lib/hooks/useSnapScroll.ts";
 import useMount from "@lib/hooks/useMount.ts";
 import SheetOverlay from "@lib/components/SheetOverlay.tsx";
+import { OverlayElementId } from "@lib/constants.ts";
 
 const SheetContainer: FC<SheetContainerProps> = ({
   children,
@@ -128,11 +129,7 @@ const SheetContainer: FC<SheetContainerProps> = ({
         // handle the situation when another bottom sheet exists as children
         event.stopPropagation();
         const target = event.target as HTMLDivElement;
-        if (
-          target &&
-          target.id &&
-          target.id === "snap-bottom-sheet-wrapper-overlay"
-        ) {
+        if (target && target.id && target.id === OverlayElementId) {
           cancel();
         }
 

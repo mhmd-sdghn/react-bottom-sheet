@@ -4,3 +4,5 @@ export const DynamicHeightComponentId =
 export const DragOffsetThreshold = 80;
 
 export const SnapPointDynamicValue = "dynamic";
+
+export const OverlayElementId = "snap-bottom-sheet-wrapper-overlay";

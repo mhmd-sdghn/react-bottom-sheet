@@ -5,7 +5,7 @@ import {
   UseAnimAnimateFn,
 } from "@lib/types.ts";
 import { clamp, getClosestIndex, isSnapPointConfigObj } from "@lib/utils.ts";
-import { DragOffsetThreshold } from "@lib/constants.ts";
+import { DragOffsetThreshold, OverlayElementId } from "@lib/constants.ts";
 
 /**
  * Handles the drag end event for bottom sheet components with snap points
@@ -86,7 +86,7 @@ const onDragEndEventHandler = (
     // Reset an overlay background if applicable
     if (wrapperRef?.current) {
       const overlay = wrapperRef.current.querySelector(
-        "#snap-bottom-sheet-wrapper-overlay",
+        `#${OverlayElementId}`,
       ) as HTMLElement;
 
       if (overlay) {

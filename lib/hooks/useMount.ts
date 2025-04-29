@@ -1,5 +1,6 @@
 import { useIsomorphicLayoutEffect } from "@react-spring/web";
 import { useMountProps } from "@lib/types.ts";
+import { OverlayElementId } from "@lib/constants.ts";
 
 /**
  * This hook manages flows when SheetContainer component mount and unmount
@@ -14,7 +15,7 @@ const useMount = ({ animate, onClose, state }: useMountProps) => {
       });
       if (wrapperRef.current && overlayColor) {
         const overlay = wrapperRef.current.querySelector(
-          "#snap-bottom-sheet-wrapper-overlay",
+          `#${OverlayElementId}`,
         ) as HTMLElement;
 
         if (overlay) overlay.style.backgroundColor = "";
@@ -27,7 +28,7 @@ const useMount = ({ animate, onClose, state }: useMountProps) => {
           );
         } else if (wrapperRef.current) {
           const overlay = wrapperRef.current.querySelector(
-            "#snap-bottom-sheet-wrapper-overlay",
+            `#${OverlayElementId}`,
           ) as HTMLElement;
 
           if (overlay) overlay.style.backgroundColor = overlayColor;
