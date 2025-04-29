@@ -14,6 +14,15 @@ export const isSSR = () =>
     process.versions &&
     process.versions.node !== undefined);
 
+export const clamp = (num: number, min: number, max: number) => {
+  return num <= min ? min : num >= max ? max : num;
+};
+
+export const isSnapPointConfigObj = (
+  point?: SnapPoint | null,
+): point is SnapPointConfigObj =>
+  typeof point === "object" && point !== null && "value" in point;
+
 export const findDynamicHeightComponent = (
   children: ReactNode,
 ): ReactElement<{ children: ReactNode }> | null => {
@@ -131,29 +140,25 @@ const isDynamicSnapValue = (snap: SnapPoint) => {
   return snap === SnapPointDynamicValue;
 };
 
-/** Converts any valid snap point format to pixels */
 const convertSnapToPixels = (snap: SnapPoint, viewHeight: number): number => {
-  if (typeof snap === "object" && "value" in snap) {
-    return calculatePixelValue(snap.value, viewHeight);
-  }
-  return calculatePixelValue(snap, viewHeight);
-};
+  // Extract the value to convert (handle both direct values and config objects)
+  const valueToConvert = isSnapPointConfigObj(snap) ? snap.value : snap;
 
-const calculatePixelValue = (
-  value: string | number,
-  viewHeight: number,
-): number => {
-  const numericValue = typeof value === "string" ? parseFloat(value) : value;
+  const numericValue =
+    typeof valueToConvert === "string"
+      ? parseFloat(valueToConvert)
+      : valueToConvert;
 
   if (isNaN(numericValue)) {
-    console.warn("snap-bottom-sheet: Invalid snap value:", value);
+    console.warn("snap-bottom-sheet: Invalid snap value:", valueToConvert);
     return 0;
   }
 
-  // Handle percentage values (<=1) vs absolute pixels
+  // Calculate the height offset (percentage if ≤1, otherwise absolute pixels)
   const heightOffset =
     numericValue <= 1 ? numericValue * viewHeight : numericValue;
 
+  // Return the pixel position (ensure it's not negative)
   return Math.max(viewHeight - heightOffset, 0);
 };
 
@@ -178,7 +183,6 @@ const validateDynamicSnapPosition = (
 
 const sortSnapValues = (values: number[]): number[] =>
   [...values].sort((a, b) => {
-    // Keep 0 (bottom position) at the end
     if (a === 0) return 1;
     if (b === 0) return -1;
     return b - a;
@@ -221,12 +225,3 @@ export const getSnapValues = (
   // Sort zero (full-height) last
   return sortSnapValues(processedValues);
 };
-
-export const clamp = (num: number, min: number, max: number) => {
-  return num <= min ? min : num >= max ? max : num;
-};
-
-export const isSnapPointConfigObj = (
-  point?: SnapPoint | null,
-): point is SnapPointConfigObj =>
-  typeof point === "object" && point !== null && "value" in point;
