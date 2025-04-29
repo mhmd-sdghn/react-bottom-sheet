@@ -14,7 +14,13 @@ const useSnapState = (
 ) => {
   const initialSnapPoints = buildSnapPointsArray(snapPoints, dynamicContent);
 
-  return useState<SnapPoint[]>(initialSnapPoints);
+  const [snapState, setSnapState] = useState<SnapPoint[]>(initialSnapPoints);
+
+  function handleSetSnaps(snaps: SnapPoint[]) {
+    setSnapState(buildSnapPointsArray(snaps, dynamicContent));
+  }
+
+  return [snapState, handleSetSnaps];
 };
 
 function buildSnapPointsArray(
