@@ -14,15 +14,32 @@ export const isSSR = () =>
     process.versions &&
     process.versions.node !== undefined);
 
+/**
+ * helper function that returns a number between min if num is less than min
+ * and returns max if its more than max value
+ * and return num if non of above happens.
+ * @param num
+ * @param min
+ * @param max
+ */
 export const clamp = (num: number, min: number, max: number) => {
   return num <= min ? min : num >= max ? max : num;
 };
 
+/**
+ * This function Checks if the snap point is a number value, or
+ * it's a snap point configuration object.
+ * @param point snap point
+ */
 export const isSnapPointConfigObj = (
   point?: SnapPoint | null,
 ): point is SnapPointConfigObj =>
   typeof point === "object" && point !== null && "value" in point;
 
+/**
+ * Checks a Sheet Container component to find DynamicHeightComponent
+ * @param children Sheet Container children
+ */
 export const findDynamicHeightComponent = (
   children: ReactNode,
 ): ReactElement<{ children: ReactNode }> | null => {
@@ -41,6 +58,12 @@ export const findDynamicHeightComponent = (
   return child;
 };
 
+/**
+ * @param arr
+ * @param target
+ * @param offset
+ * @param activeIndex
+ */
 export function getClosestIndex(
   arr: number[],
   target: number,
@@ -71,6 +94,11 @@ export function getClosestIndex(
   return closestIndex;
 }
 
+/**
+ * This function checks the next snap value is inside the view bounds
+ * @param snapTo
+ * @param sheetHeight
+ */
 export function validateSnapTo({
   snapTo,
   sheetHeight,
@@ -89,13 +117,18 @@ export function validateSnapTo({
   return Math.max(Math.round(snapTo), 0);
 }
 
+/**
+ * if there is no snap value or if the only snap value is
+ * dynamic content height value then, content mode is on.
+ * @param snapValues
+ * @param viewHeight
+ * @param dynamicHeightContent
+ */
 export const isContentMode = (
   snapValues: SnapPoint[],
   viewHeight: number,
   dynamicHeightContent: number,
 ) => {
-  // if there is no snap value or if the only snap value is
-  // dynamic content height value then, content mode is on.
   return (
     !snapValues.length ||
     (snapValues.length === 1 &&
@@ -103,6 +136,14 @@ export const isContentMode = (
   );
 };
 
+/**
+ * Returns active snap point value
+ * @param snapValues
+ * @param viewHeight
+ * @param contentMode
+ * @param activeSnapPointIndex
+ * @param dynamicHeightContent
+ */
 export const getActiveValue = (
   snapValues: number[],
   viewHeight: number,
@@ -119,6 +160,11 @@ export const getActiveValue = (
   return snapValues[0] || 0;
 };
 
+/**
+ * @param activeSnapPointIndex
+ * @param dynamicContentHeight
+ * @param snapPoints
+ */
 export const getActiveSnapPoint = (
   activeSnapPointIndex: number,
   dynamicContentHeight: number,
@@ -130,18 +176,23 @@ export const getActiveSnapPoint = (
   return 1; // full-height
 };
 
+/**
+ * It checks if the snap is the dynamic height snap
+ * @param snap
+ */
 const isDynamicSnapValue = (snap: SnapPoint) => {
-  if (
-    typeof snap === "object" &&
-    "value" in snap &&
-    snap.value === SnapPointDynamicValue
-  )
+  if (isSnapPointConfigObj(snap) && snap.value === SnapPointDynamicValue)
     return true;
   return snap === SnapPointDynamicValue;
 };
 
+/**
+ * snap-bottom-sheet gets snap values in efferent formats from developers, but we
+ * convert them to pixel values to use them for calculations.
+ * @param snap
+ * @param viewHeight
+ */
 const convertSnapToPixels = (snap: SnapPoint, viewHeight: number): number => {
-  // Extract the value to convert (handle both direct values and config objects)
   const valueToConvert = isSnapPointConfigObj(snap) ? snap.value : snap;
 
   const numericValue =
@@ -162,6 +213,13 @@ const convertSnapToPixels = (snap: SnapPoint, viewHeight: number): number => {
   return Math.max(viewHeight - heightOffset, 0);
 };
 
+/**
+ * Using DynamicHeight component requires passing SnapPointDynamicValue as
+ *  the first argument of the snap points array; this function warns developers
+ *  in case they forgot to do that.
+ * @param hasDynamicComponent
+ * @param dynamicIndex
+ */
 const validateDynamicSnapPosition = (
   hasDynamicComponent: boolean,
   dynamicIndex: number,
@@ -181,6 +239,11 @@ const validateDynamicSnapPosition = (
   }
 };
 
+/**
+ * snap-bottom-sheet needs snap values sorted but it does not force developers
+ *  to sort their snap values, snap-bottom-sheet sorts values for them.
+ * @param values
+ */
 const sortSnapValues = (values: number[]): number[] =>
   [...values].sort((a, b) => {
     if (a === 0) return 1;
@@ -188,6 +251,13 @@ const sortSnapValues = (values: number[]): number[] =>
     return b - a;
   });
 
+/**
+ * This function adds dynamic content height (if exists) to the snap values and also
+ * extracts snap values from snap points
+ * @param viewHeight
+ * @param dynamicContentHeight
+ * @param snapPoints
+ */
 export const getSnapValues = (
   viewHeight: number,
   dynamicContentHeight: number,
@@ -207,21 +277,16 @@ export const getSnapValues = (
   const processedValues: number[] = [];
 
   snapPoints.forEach((snap, index) => {
-    // Handle dynamic content marker
     if (isDynamicSnapValue(snap)) {
       dynamicSnapIndex = index;
       processedValues.push(viewHeight);
-      return;
+    } else {
+      const pixelValue = convertSnapToPixels(snap, viewHeight);
+      processedValues.push(pixelValue);
     }
-
-    // Convert different formats to pixel value
-    const pixelValue = convertSnapToPixels(snap, viewHeight);
-    processedValues.push(pixelValue);
   });
 
-  // Validate dynamic snap point requirements
   validateDynamicSnapPosition(!!dynamicContentHeight, dynamicSnapIndex);
 
-  // Sort zero (full-height) last
   return sortSnapValues(processedValues);
 };
