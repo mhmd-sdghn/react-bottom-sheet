@@ -1,10 +1,12 @@
 import { useIsomorphicLayoutEffect } from "@react-spring/web";
-import { validateSnapTo } from "@lib/utils.ts";
 import { useRef } from "react";
 import { useSnapScrollProps } from "@lib/types.ts";
+import { isSnapPointConfigObj, validateSnapTo } from "@lib/utils.ts";
 
 /**
  * This hook handles scroll-lock and drag based on each snap
+ * @param state
+ * @param animate
  */
 const useSnapScroll = ({ state, animate }: useSnapScrollProps) => {
   // TODO you might need to move this to bottom sheet component
@@ -20,7 +22,7 @@ const useSnapScroll = ({ state, animate }: useSnapScrollProps) => {
 
   useIsomorphicLayoutEffect(() => {
     // handle scroll lock when active index changes from outside.
-    if (typeof activeSnapPoint === "object" && activeSnapPoint.scroll) {
+    if (isSnapPointConfigObj(activeSnapPoint) && activeSnapPoint.scroll) {
       scrollLock.current.deactivate();
     } else {
       bottomSheetRef.current?.scroll({ top: 0, behavior: "smooth" });
