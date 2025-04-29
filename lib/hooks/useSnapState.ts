@@ -11,10 +11,16 @@ import { SnapPointDynamicValue } from "@lib/constants.ts";
 const useSnapState = (
   snapPoints: SnapPoint[] | null,
   dynamicContent: boolean | Omit<SnapPointConfigObj, "value"> = false,
-) => {
+): [SnapPoint[], (snaps: SnapPoint[]) => void] => {
   const initialSnapPoints = buildSnapPointsArray(snapPoints, dynamicContent);
 
-  return useState<SnapPoint[]>(initialSnapPoints);
+  const [snapState, setSnapState] = useState<SnapPoint[]>(initialSnapPoints);
+
+  function handleSetSnaps(snaps: SnapPoint[]) {
+    setSnapState(buildSnapPointsArray(snaps, dynamicContent));
+  }
+
+  return [snapState, handleSetSnaps];
 };
 
 function buildSnapPointsArray(
