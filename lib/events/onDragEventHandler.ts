@@ -1,6 +1,7 @@
 import { RefObject } from "react";
 import { OnDragEventHandlerState, UseAnimAnimateFn } from "@lib/types.ts";
-import { clamp, isSnapPointConfigObj } from "@lib/utils.ts";
+import { clamp } from "@lib/utils.ts";
+import { isSnapPointConfigObj } from "@lib/utils.ts";
 
 /**
  * Handles drag events for draggable elements with support for snap points and scrolling
@@ -31,7 +32,7 @@ const onDragEventHandler = (
     const snapConfig = activeSnapPoint;
     const dragConfig = snapConfig.drag;
 
-    // Check if drag should be blocked based on direction
+    // Check if drag should be blocked based on the direction
     const isDragBlocked =
       dragConfig === false ||
       (typeof dragConfig === "object" &&
